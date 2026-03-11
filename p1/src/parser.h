@@ -9,7 +9,7 @@ struct Submission
     std::string authors;
     std::string email;
     int primary_topic;
-    int secondary_topic; // -1 if absent
+    int secondary_topic;
 };
 
 struct Reviewer
@@ -18,7 +18,7 @@ struct Reviewer
     std::string name;
     std::string email;
     int primary_topic;
-    int secondary_topic; // -1 if absent
+    int secondary_topic; 
 };
 
 struct Parameters
@@ -33,9 +33,9 @@ struct Parameters
 
 struct Control
 {
-    bool generate_assignments = true;
-    bool risk_analysis = false;
-    std::string output_file_name = "assign.csv";
+    int generate_assignments = 0;
+    int risk_analysis = 1;        
+    std::string output_file_name = "output.csv";
 };
 
 struct ParsedInput

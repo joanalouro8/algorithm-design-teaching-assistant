@@ -12,6 +12,8 @@ int main(int argc, char *argv[])
 
     ParsedInput data = parseInputFile(argv[2]);
 
+    
+
     std::ofstream out(data.control.output_file_name);
     if (!out)
     {
