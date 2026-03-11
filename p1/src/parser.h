@@ -2,23 +2,11 @@
 #include <string>
 #include <vector>
 
-struct Submission
+struct Topic
 {
     int id;
-    std::string title;
-    std::string authors;
-    std::string email;
     int primary_topic;
     int secondary_topic;
-};
-
-struct Reviewer
-{
-    int id;
-    std::string name;
-    std::string email;
-    int primary_topic;
-    int secondary_topic; 
 };
 
 struct Parameters
@@ -40,8 +28,8 @@ struct Control
 
 struct ParsedInput
 {
-    std::vector<Submission> submissions;
-    std::vector<Reviewer> reviewers;
+    std::vector<Topic> submissions;
+    std::vector<Topic> reviewers;
     Parameters parameters;
     Control control;
 };

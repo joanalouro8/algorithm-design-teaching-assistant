@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
     ParsedInput data = parseInputFile(argv[2]);
 
-    
+
 
     std::ofstream out(data.control.output_file_name);
     if (!out)
@@ -22,12 +22,10 @@ int main(int argc, char *argv[])
     }
 
     out << "Submissions: " << data.submissions.size() << "\n";
-    for (const Submission &s : data.submissions)
+    for (const Topic &s : data.submissions)
     {
-        out << "  [" << s.id << "] " << s.title
-            << " | " << s.authors
-            << " | " << s.email
-            << " | primary: " << s.primary_topic;
+        out << "  [" << s.id << "] "
+            << " primary: " << s.primary_topic;
         if (s.secondary_topic != -1)
         {
             out << " secondary: " << s.secondary_topic;
@@ -36,11 +34,10 @@ int main(int argc, char *argv[])
     }
 
     out << "\nReviewers: " << data.reviewers.size() << "\n";
-    for (const Reviewer &r : data.reviewers)
+    for (const Topic &r : data.reviewers)
     {
-        out << "  [" << r.id << "] " << r.name
-            << " | " << r.email
-            << " | primary: " << r.primary_topic;
+        out << "  [" << r.id << "] "
+            << " primary: " << r.primary_topic;
         if (r.secondary_topic != -1)
         {
             out << " secondary: " << r.secondary_topic;

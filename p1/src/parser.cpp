@@ -105,11 +105,8 @@ ParsedInput parseInputFile(const std::string &path)
             }
             try
             {
-                Submission submission;
+                Topic submission;
                 submission.id = std::stoi(fields[0]);
-                submission.title = fields[1];
-                submission.authors = fields[2];
-                submission.email = fields[3];
                 submission.primary_topic = std::stoi(fields[4]);
                 submission.secondary_topic = (fields.size() > 5 && !fields[5].empty()) ? std::stoi(fields[5]) : -1;
                 result.submissions.push_back(submission);
@@ -127,10 +124,8 @@ ParsedInput parseInputFile(const std::string &path)
             }
             try
             {
-                Reviewer reviewer;
+                Topic reviewer;
                 reviewer.id = std::stoi(fields[0]);
-                reviewer.name = fields[1];
-                reviewer.email = fields[2];
                 reviewer.primary_topic = std::stoi(fields[3]);
                 reviewer.secondary_topic = (fields.size() > 4 && !fields[4].empty()) ? std::stoi(fields[4]) : -1;
                 result.reviewers.push_back(reviewer);
