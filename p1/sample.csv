@@ -10,11 +10,7 @@
 #Parameters
 MinReviewsPerSubmission, 5
 MaxReviewsPerReviewer, 4
-PrimaryReviewerExpertise, 1
-SecondaryReviewerExpertise, 0
-PrimarySubmissionDomain, 1
-SecondarySubmissionDomain, 1
 #Control
 GenerateAssignments, 1
-RiskAnalysis, 1
+RiskAnalysis, 0
 OutputFileName, "assign.csv"

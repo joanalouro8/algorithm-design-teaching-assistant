@@ -9,7 +9,6 @@
 #include <queue>
 #include <limits>
 #include <algorithm>
-#include "../data_structures/MutablePriorityQueue.h" // not needed for now
 
 template <class T>
 class Edge;
@@ -22,7 +21,7 @@ template <class T>
 class Vertex {
 public:
     Vertex(T in);
-    bool operator<(Vertex<T> & vertex) const; // // required by MutablePriorityQueue
+    // bool operator<(Vertex<T> & vertex) const; // // required by MutablePriorityQueue
 
     T getInfo() const;
     std::vector<Edge<T> *> getAdj() const;
@@ -37,6 +36,12 @@ public:
     void setVisited(bool visited);
     void setProcessing(bool processing);
 
+    //New methods
+    int Vertex<T>::getId() const;
+    void Vertex<T>::setId(int id);
+    int Vertex<T>::getExpertise() const;
+    void Vertex<T>::setExpertise(int expertise);
+
     int getLow() const;
     void setLow(int value);
     int getNum() const;
@@ -49,7 +54,7 @@ public:
     bool removeEdge(T in);
     void removeOutgoingEdges();
 
-    friend class MutablePriorityQueue<Vertex>;
+    // friend class MutablePriorityQueue<Vertex>;
 protected:
     T info;                // info node
     std::vector<Edge<T> *> adj;  // outgoing edges
@@ -62,9 +67,13 @@ protected:
     double dist = 0;
     Edge<T> *path = nullptr;
 
+    // new fields 
+    int id;
+    int expertise;
+
     std::vector<Edge<T> *> incoming; // incoming edges
 
-    int queueIndex = 0; 		// required by MutablePriorityQueue and UFDS
+    // int queueIndex = 0; 		// required by MutablePriorityQueue and UFDS
 
     void deleteEdge(Edge<T> *edge);
 };
@@ -241,6 +250,30 @@ bool Vertex<T>::isVisited() const {
 template <class T>
 bool Vertex<T>::isProcessing() const {
     return this->processing;
+}
+
+template <class T>
+int Vertex<T>::getId() const
+{
+    return this->id;
+}
+
+template <class T>
+void Vertex<T>::setId(int id)
+{
+    this->id = id;
+}
+
+template <class T>
+int Vertex<T>::getExpertise() const
+{
+    return this->expertise;
+}
+
+template <class T>
+void Vertex<T>::setExpertise(int expertise)
+{
+    this->expertise = expertise;
 }
 
 template <class T>
