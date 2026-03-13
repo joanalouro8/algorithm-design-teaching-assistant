@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     Parameters data = parseInputFile(argv[2], submissions, reviewers);
 
     std::ofstream riskOut;
-    if (argc == 4)
+    if (argc == 4 && data.risk_analysis > 0)
     {
         riskOut.open(argv[3]);
         if (!riskOut)
@@ -27,8 +27,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (data.generate_assignments > 0)
+    if (data.generate_assignments > 0){
         generateAssignments(submissions, reviewers, data, riskOut);
+    }
 
     return 0;
 }
