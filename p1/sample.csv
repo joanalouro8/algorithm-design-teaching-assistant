@@ -8,9 +8,9 @@
 1, Jaqueline N. Chame, jchame@yahoo.com, 1, 
 2, Mary W. Hall, mhall@hotmail.edu, 1, 4
 #Parameters
-MinReviewsPerSubmission, 5
+MinReviewsPerSubmission, 2
 MaxReviewsPerReviewer, 4
 #Control
 GenerateAssignments, 1
-RiskAnalysis, 0
+RiskAnalysis, 1
 OutputFileName, "assign.csv"
