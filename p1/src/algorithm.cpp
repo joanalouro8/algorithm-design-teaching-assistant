@@ -119,9 +119,6 @@ void generateAssignments(std::vector<Topic> &submissions_topic,
 
     fordFulkerson(&my_graph, source, terminal);
 
-
-
-
     // --- Extract and output assignments ---
     std::ofstream out(data.output_file_name);
     if (!out.is_open())
@@ -130,19 +127,65 @@ void generateAssignments(std::vector<Topic> &submissions_topic,
         return;
     }
 
-    out << "submission_id,reviewer_id\n";
+    // Collect assignments
+    struct Assignment
+    {
+        int submissionId;
+        int reviewerId;
+        int topic;
+    };
+
+    std::vector<Assignment> assignments;
+    for (Vertex<int> *sub : submissions)
+        for (auto edge : sub->getAdj())
+            if (edge->getFlow() == 1.0)
+                assignments.push_back({sub->getId(), edge->getDest()->getId(), sub->getExpertise()});
+
+    // Sort by SubmissionId for first section
+    std::sort(assignments.begin(), assignments.end(), [](const Assignment &a, const Assignment &b)
+              { return a.submissionId < b.submissionId; });
+
+    out << "#SubmissionId,ReviewerId,Match\n";
+    for (const auto &a : assignments)
+        out << a.submissionId << ", " << a.reviewerId << ", " << a.topic << "\n";
+
+    // Sort by ReviewerId for second section
+    std::sort(assignments.begin(), assignments.end(), [](const Assignment &a, const Assignment &b)
+              { return a.reviewerId < b.reviewerId; });
+
+    out << "#ReviewerId,SubmissionId,Match\n";
+    for (const auto &a : assignments)
+        out << a.reviewerId << ", " << a.submissionId << ", " << a.topic << "\n";
+
+    out << "#Total: " << assignments.size() << "\n";
+
+    // Collect unmet submissions
+    struct UnmetSubmission
+    {
+        int submissionId;
+        int topic;
+        int missingReviews;
+    };
+
+    std::vector<UnmetSubmission> unmet;
     for (Vertex<int> *sub : submissions)
     {
+        int assigned = 0;
         for (auto edge : sub->getAdj())
-        {
-            // An edge with flow == 1 means this reviewer is assigned
             if (edge->getFlow() == 1.0)
-            {
-                out << sub->getId() << "," << edge->getDest()->getId() << "\n";
-                std::cout << "Article " << sub->getId()
-                          << " -> Reviewer " << edge->getDest()->getId() << "\n";
-            }
-        }
+                assigned++;
+
+        int missing = data.min_reviews_per_submission - assigned;
+        if (missing > 0)
+            unmet.push_back({sub->getId(), sub->getExpertise(), missing});
     }
+
+    // Sort by SubmissionId
+    std::sort(unmet.begin(), unmet.end(), [](const UnmetSubmission &a, const UnmetSubmission &b)
+              { return a.submissionId < b.submissionId; });
+
+    out << "#SubmissionId,Domain,MissingReviews\n";
+    for (const auto &u : unmet)
+        out << u.submissionId << ", " << u.topic << ", " << u.missingReviews << "\n";
     out.close();
 }
