@@ -6,9 +6,9 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc != 4 || std::string(argv[1]) != "-b")
+    if (argc < 3 || argc > 4 || std::string(argv[1]) != "-b")
     {
-        std::cerr << "Usage: myProg -b input.csv risk.csv\n";
+        std::cerr << "Usage: myProg -b input.csv [risk.csv]\n";
         return 1;
     }
 
@@ -16,17 +16,19 @@ int main(int argc, char *argv[])
     std::vector<Topic> reviewers;
     Parameters data = parseInputFile(argv[2], submissions, reviewers);
 
-    if(data.generate_assignments > 0){
-        generateAssignments(submissions,reviewers,data);
+    std::ofstream riskOut;
+    if (argc == 4)
+    {
+        riskOut.open(argv[3]);
+        if (!riskOut)
+        {
+            std::cerr << "Cannot open risk file: " << argv[3] << "\n";
+            return 1;
+        }
     }
 
-    std::ofstream risk(argv[3]);
-    if (!risk)
-    {
-        std::cerr << "Cannot open risk file: " << argv[3] << "\n";
-        return 1;
-    }
-    risk << "RiskAnalysis, " << data.risk_analysis << "\n ";
+    if (data.generate_assignments > 0)
+        generateAssignments(submissions, reviewers, data, riskOut);
 
     return 0;
 }

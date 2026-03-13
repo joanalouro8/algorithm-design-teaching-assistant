@@ -86,7 +86,6 @@ void buildGraph(Graph<int> &graph,
                 const std::vector<Topic> &reviewers_topic,
                 const Parameters &data,
                 std::vector<Vertex<int> *> &submissions,
-                std::vector<Vertex<int> *> &reviewers,
                 int skipReviewerIndex = -1)
 {
     const int REVIEWERS_OFFSET = SUBMISSIONS_OFFSET + (int)submissions_topic.size();
@@ -161,8 +160,8 @@ bool isRisky(const std::vector<Topic> &submissions_topic,
              const std::vector<UndercoveredSubmission> &baselineUndercovered)
 {
     Graph<int> g;
-    std::vector<Vertex<int> *> submissions, reviewers;
-    buildGraph(g, submissions_topic, reviewers_topic, data, submissions, reviewers, skipIndex);
+    std::vector<Vertex<int> *> submissions;
+    buildGraph(g, submissions_topic, reviewers_topic, data, submissions, skipIndex);
     fordFulkerson(&g, g.findVertex(SOURCE), g.findVertex(TERMINAL));
 
     return collectUndercovered(submissions).size() > baselineUndercovered.size();
@@ -226,11 +225,12 @@ void writeRiskyReviewers(std::ofstream &out, const std::vector<int> &risky, int 
 
 void generateAssignments(std::vector<Topic> &submissions_topic,
                          std::vector<Topic> &reviewers_topic,
-                         Parameters data)
+                         Parameters data,
+                         std::ofstream &riskOut)
 {
     Graph<int> my_graph;
-    std::vector<Vertex<int> *> submissions, reviewers;
-    buildGraph(my_graph, submissions_topic, reviewers_topic, data, submissions, reviewers);
+    std::vector<Vertex<int> *> submissions;
+    buildGraph(my_graph, submissions_topic, reviewers_topic, data, submissions);
     fordFulkerson(&my_graph, my_graph.findVertex(SOURCE), my_graph.findVertex(TERMINAL));
 
     auto assignments = collectAssignments(submissions);
@@ -242,6 +242,7 @@ void generateAssignments(std::vector<Topic> &submissions_topic,
         std::cerr << "Could not open output file: " << data.output_file_name << "\n";
         return;
     }
+
     writeAssignmentsBySubmission(out, assignments);
     writeAssignmentsByReviewer(out, assignments);
     out << "#Total: " << assignments.size() << "\n";
@@ -249,8 +250,10 @@ void generateAssignments(std::vector<Topic> &submissions_topic,
 
     if (data.risk_analysis > 0)
     {
-        std::vector<int> risky = collectRiskyReviewers(submissions_topic, reviewers_topic, data, baselineUndercovered);
+        auto risky = collectRiskyReviewers(submissions_topic, reviewers_topic, data, baselineUndercovered);
         writeRiskyReviewers(out, risky, data.risk_analysis);
+        if (riskOut.is_open())
+            writeRiskyReviewers(riskOut, risky, data.risk_analysis);
     }
 
     out.close();
