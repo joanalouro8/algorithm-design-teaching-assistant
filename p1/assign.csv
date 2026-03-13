@@ -1,16 +1,3 @@
-Submissions: 2
-  [31]  primary: 3 secondary: 4
-  [87]  primary: 1
-
-Reviewers: 2
-  [1]  primary: 1
-  [2]  primary: 1 secondary: 4
-
-Parameters:
-  MinReviewsPerSubmission:    5
-  MaxReviewsPerReviewer:      4
-
-Control:
-  GenerateAssignments: 0
-  RiskAnalysis:        0
-  OutputFileName:      assign.csv
+submission_id,reviewer_id
+87,1
+87,2

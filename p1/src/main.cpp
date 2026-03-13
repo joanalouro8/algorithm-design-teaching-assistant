@@ -16,10 +16,6 @@ int main(int argc, char *argv[])
     std::vector<Topic> reviewers;
     Parameters data = parseInputFile(argv[2], submissions, reviewers);
 
-    if(data.generate_assignments > 0){
-        generateAssignments(submissions,reviewers,data);
-    }
-
     std::ofstream out(data.output_file_name);
     if (!out)
     {
@@ -27,38 +23,44 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    out << "Submissions: " << submissions.size() << "\n";
-    for (const Topic &s : submissions)
-    {
-        out << "  [" << s.id << "] "
-            << " primary: " << s.primary_topic;
-        if (s.secondary_topic != -1)
-        {
-            out << " secondary: " << s.secondary_topic;
-        }
-        out << "\n";
+    if(data.generate_assignments > 0){
+        generateAssignments(submissions,reviewers,data);
     }
 
-    out << "\nReviewers: " << reviewers.size() << "\n";
-    for (const Topic &r : reviewers)
-    {
-        out << "  [" << r.id << "] "
-            << " primary: " << r.primary_topic;
-        if (r.secondary_topic != -1)
-        {
-            out << " secondary: " << r.secondary_topic;
-        }
-        out << "\n";
-    }
+    
 
-    out << "\nParameters:\n";
-    out << "  MinReviewsPerSubmission:    " << data.min_reviews_per_submission << "\n";
-    out << "  MaxReviewsPerReviewer:      " << data.max_reviews_per_reviewer << "\n";
+    // out << "Submissions: " << submissions.size() << "\n";
+    // for (const Topic &s : submissions)
+    // {
+    //     out << "  [" << s.id << "] "
+    //         << " primary: " << s.primary_topic;
+    //     if (s.secondary_topic != -1)
+    //     {
+    //         out << " secondary: " << s.secondary_topic;
+    //     }
+    //     out << "\n";
+    // }
 
-    out << "\nControl:\n";
-    out << "  GenerateAssignments: " << data.generate_assignments << "\n";
-    out << "  RiskAnalysis:        " << data.risk_analysis << "\n";
-    out << "  OutputFileName:      " << data.output_file_name << "\n";
+    // out << "\nReviewers: " << reviewers.size() << "\n";
+    // for (const Topic &r : reviewers)
+    // {
+    //     out << "  [" << r.id << "] "
+    //         << " primary: " << r.primary_topic;
+    //     if (r.secondary_topic != -1)
+    //     {
+    //         out << " secondary: " << r.secondary_topic;
+    //     }
+    //     out << "\n";
+    // }
+
+    // out << "\nParameters:\n";
+    // out << "  MinReviewsPerSubmission:    " << data.min_reviews_per_submission << "\n";
+    // out << "  MaxReviewsPerReviewer:      " << data.max_reviews_per_reviewer << "\n";
+
+    // out << "\nControl:\n";
+    // out << "  GenerateAssignments: " << data.generate_assignments << "\n";
+    // out << "  RiskAnalysis:        " << data.risk_analysis << "\n";
+    // out << "  OutputFileName:      " << data.output_file_name << "\n";
 
     std::ofstream risk(argv[3]);
     if (!risk)

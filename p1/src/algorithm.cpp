@@ -1,45 +1,8 @@
 #include "Graph.h"
 #include "parser.h"
 #include <limits>
-
-void generateAssignments(std::vector<Topic> &submissions_topic, std::vector<Topic> &reviewers_topic, Parameters data)
-{
-    Graph<int> my_graph;
-    my_graph.addVertex(0);
-    my_graph.addVertex(1);
-    Vertex<int> *source = my_graph.findVertex(0);
-    Vertex<int> *terminal = my_graph.findVertex(1);
-    std::vector<Vertex<int>*> submissions(submissions_topic.size());
-    int index = 0;
-    for(Topic submission : submissions_topic){
-        my_graph.addVertex(index);
-        Vertex<int> *new_submission = my_graph.findVertex(index);
-        new_submission->setId(submission.id);
-        new_submission->setExpertise(submission.primary_topic);
-        source->addEdge(new_submission, data.min_reviews_per_submission);
-        submissions[index] = new_submission;
-        ++index;
-    }
-
-    std::vector<Vertex<int>*> reviewers(reviewers_topic.size());
-    index = 0;
-    for (Topic reviewer : reviewers_topic)
-    {
-        my_graph.addVertex(index);
-        Vertex<int> *new_reviewer = my_graph.findVertex(index);
-        new_reviewer->setId(reviewer.id);
-        new_reviewer->setExpertise(reviewer.primary_topic);
-        new_reviewer->addEdge(terminal,data.max_reviews_per_reviewer);
-        submissions[index] = new_reviewer;
-        ++index;
-        for(Vertex<int>* submission : submissions){
-            if(submission->getExpertise() == reviewer.primary_topic){
-                submission->addEdge(new_reviewer,1);
-            }
-        }
-        
-    }
-}
+#include <iostream>
+#include <fstream>
 
 template <class T>
 bool dfsFindAugmentingPath(Vertex<T> *v, Vertex<T> *t, double &flow)
@@ -49,6 +12,7 @@ bool dfsFindAugmentingPath(Vertex<T> *v, Vertex<T> *t, double &flow)
     {
         return true;
     }
+
     for (auto edge : v->getAdj())
     {
         if (!edge->getDest()->isVisited() && (edge->getWeight() - edge->getFlow()) > 0)
@@ -61,6 +25,7 @@ bool dfsFindAugmentingPath(Vertex<T> *v, Vertex<T> *t, double &flow)
             }
         }
     }
+
     for (auto edge : v->getIncoming())
     {
         if (!edge->getOrig()->isVisited() && edge->getFlow() > 0)
@@ -76,13 +41,10 @@ bool dfsFindAugmentingPath(Vertex<T> *v, Vertex<T> *t, double &flow)
     return false;
 }
 
-// Ford-Fulkerson algorithm
 template <class T>
-void fordFulkerson(Graph<T> *g, int source, int target)
+void fordFulkerson(Graph<T> *g, Vertex<T> *s, Vertex<T> *t)
 {
-    Vertex<T> *s = g->findVertex(source);
-    Vertex<T> *t = g->findVertex(target);
-    if (s == t || s == nullptr || t == nullptr)
+    if (s == nullptr || t == nullptr || s == t)
     {
         return;
     }
@@ -95,50 +57,92 @@ void fordFulkerson(Graph<T> *g, int source, int target)
             e->setFlow(0);
         }
     }
+
     double f = INF;
-    double max = 0;
     while (dfsFindAugmentingPath(s, t, f))
     {
-        max += f;
+        f = INF;
         for (auto v : g->getVertexSet())
-        {
             v->setVisited(false);
-        }
     }
 }
 
-// /// TESTS ///
-// #include <gtest/gtest.h>
+void generateAssignments(std::vector<Topic> &submissions_topic,
+                         std::vector<Topic> &reviewers_topic,
+                         Parameters data)
+{
+    Graph<int> my_graph;
+    const int SOURCE = 0;
+    const int TERMINAL = 1;
+    const int SUBMISSIONS_OFFSET = 2;
+    const int REVIEWERS_OFFSET = 2 + (int)submissions_topic.size();
 
-// TEST(TP3_Ex6, test_fordFulkerson)
-// {
-//     Graph<int> myGraph;
+    my_graph.addVertex(SOURCE);
+    my_graph.addVertex(TERMINAL);
 
-//     for (int i = 1; i <= 6; i++)
-//         myGraph.addVertex(i);
+    Vertex<int> *source = my_graph.findVertex(SOURCE);
+    Vertex<int> *terminal = my_graph.findVertex(TERMINAL);
 
-//     myGraph.addEdge(1, 2, 3);
-//     myGraph.addEdge(1, 3, 2);
-//     myGraph.addEdge(2, 5, 4);
-//     myGraph.addEdge(2, 4, 3);
-//     myGraph.addEdge(2, 3, 1);
-//     myGraph.addEdge(3, 5, 2);
-//     myGraph.addEdge(4, 6, 2);
-//     myGraph.addEdge(5, 6, 3);
+    // Submission vertices
+    std::vector<Vertex<int> *> submissions(submissions_topic.size());
+    for (int i = 0; i < (int)submissions_topic.size(); ++i)
+    {
+        int index = SUBMISSIONS_OFFSET + i;
+        my_graph.addVertex(index);
+        Vertex<int> *new_submission = my_graph.findVertex(index);
+        new_submission->setId(submissions_topic[i].id);
+        new_submission->setExpertise(submissions_topic[i].primary_topic);
+        source->addEdge(new_submission, data.min_reviews_per_submission);
+        submissions[i] = new_submission;
+    }
 
-//     fordFulkerson(&myGraph, 1, 6);
+    // Reviewer vertices
+    std::vector<Vertex<int> *> reviewers(reviewers_topic.size());
+    for (int i = 0; i < (int)reviewers_topic.size(); ++i)
+    {
+        int index = REVIEWERS_OFFSET + i;
+        my_graph.addVertex(index);
+        Vertex<int> *new_reviewer = my_graph.findVertex(index);
+        new_reviewer->setId(reviewers_topic[i].id);
+        new_reviewer->setExpertise(reviewers_topic[i].primary_topic);
+        new_reviewer->addEdge(terminal, data.max_reviews_per_reviewer);
+        reviewers[i] = new_reviewer;
 
-//     std::stringstream ss;
-//     for (auto v : myGraph.getVertexSet())
-//     {
-//         ss << v->getInfo() << "-> (";
-//         for (const auto e : v->getAdj())
-//             ss << (e->getDest())->getInfo() << "[Flow: " << e->getFlow() << "] ";
-//         ss << ") || ";
-//     }
+        for (Vertex<int> *submission : submissions)
+        {
+            if (submission->getExpertise() == new_reviewer->getExpertise())
+            {
+                submission->addEdge(new_reviewer, 1);
+            }
+        }
+    }
 
-//     std::cout << ss.str() << std::endl
-//               << std::endl;
+    fordFulkerson(&my_graph, source, terminal);
 
-//     EXPECT_EQ("1-> (2[Flow: 3] 3[Flow: 2] ) || 2-> (5[Flow: 1] 4[Flow: 2] 3[Flow: 0] ) || 3-> (5[Flow: 2] ) || 4-> (6[Flow: 2] ) || 5-> (6[Flow: 3] ) || 6-> () || ", ss.str());
-// }
+
+
+
+    // --- Extract and output assignments ---
+    std::ofstream out(data.output_file_name);
+    if (!out.is_open())
+    {
+        std::cerr << "Could not open output file: " << data.output_file_name << "\n";
+        return;
+    }
+
+    out << "submission_id,reviewer_id\n";
+    for (Vertex<int> *sub : submissions)
+    {
+        for (auto edge : sub->getAdj())
+        {
+            // An edge with flow == 1 means this reviewer is assigned
+            if (edge->getFlow() == 1.0)
+            {
+                out << sub->getId() << "," << edge->getDest()->getId() << "\n";
+                std::cout << "Article " << sub->getId()
+                          << " -> Reviewer " << edge->getDest()->getId() << "\n";
+            }
+        }
+    }
+    out.close();
+}

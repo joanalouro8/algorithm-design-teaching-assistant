@@ -37,10 +37,10 @@ public:
     void setProcessing(bool processing);
 
     //New methods
-    int Vertex<T>::getId() const;
-    void Vertex<T>::setId(int id);
-    int Vertex<T>::getExpertise() const;
-    void Vertex<T>::setExpertise(int expertise);
+    int getId() const;
+    void setId(int id);
+    int getExpertise() const;
+    void setExpertise(int expertise);
 
     int getLow() const;
     void setLow(int value);
@@ -207,10 +207,10 @@ void Vertex<T>::removeOutgoingEdges() {
     }
 }
 
-template <class T>
-bool Vertex<T>::operator<(Vertex<T> & vertex) const {
-    return this->dist < vertex.dist;
-}
+// template <class T>
+// bool Vertex<T>::operator<(Vertex<T> & vertex) const {
+//     return this->dist < vertex.dist;
+// }
 
 template <class T>
 T Vertex<T>::getInfo() const {
