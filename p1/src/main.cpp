@@ -34,8 +34,7 @@ int main(int argc, char *argv[])
             generateAssignments(submissions, reviewers, config, false, riskOut);
         }
         else if (config.generate_assignments == 2)
-        {
-            
+        {            
             generateAssignments(submissions, reviewers, config, config.secondary_submission_domain, riskOut);
         }
         else

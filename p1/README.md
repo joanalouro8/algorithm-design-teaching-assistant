@@ -42,22 +42,25 @@ This builds the project and runs every `*.csv` file found in `input/`, writing r
 ---
 
 ## Datasets
-
 | File | Scenario |
 |---|---|
-| `dataset1.csv` | The project example |
-| `dataset2.csv` | Small dataset and all the submissions have the minimum reviews needed, with margin. |
-| `dataset3.csv` | The same as `dataset2.csv`, but with risk analysis. There is no risky reviewer. |
-| `dataset4.csv` | Small dataset and all the submissions have the minimum reviews needed, without any margin. |
-| `dataset5.csv` | The same as `dataset4.csv`, but with risk analysis. All reviewers are risky revieweres. |
-| `dataset6.csv` | Small dataset where only one submission is missing. |
-| `dataset7.csv` | Small dataset where only there are a lot of submissions missing. |
-| `dataset8.csv` | ... |
-| `dataset9.csv` | The same as `dataset8.csv`, but with risk analysis. Only 2 reviewers are risky reviewers. |
+| `dataset1.csv` | Example dataset provided in the project description. |
+| `dataset2.csv` | Primary submission domains only. All submissions receive the required number of reviews with extra reviewer capacity available. |
+| `dataset3.csv` | Same as dataset2, with risk analysis enabled. No reviewer is risky. |
+| `dataset4.csv` | Primary submission domains only. All submissions receive exactly the required number of reviews (no extra capacity). |
+| `dataset5.csv` | Same as dataset4, with risk analysis enabled. All reviewers are risky. |
+| `dataset6.csv` | Primary submission domains only. One submission cannot reach the minimum reviews. |
+| `dataset7.csv` | Primary submission domains only. Multiple submissions cannot reach the required reviews due to an insufficient number of reviewers across several topics. |
+| `dataset8.csv` | Primary submission domains only. All submissions are fully covered with no additional reviewer capacity. |
+| `dataset9.csv` | Same as dataset8, with risk analysis enabled. Only reviewers 7 and 8 are risky. |
+| `dataset10.csv` | Primary and secondary submission domains enabled. All submissions can be assigned the required reviews with extra capacity. |
+| `dataset11.csv` | Same as dataset10, with risk analysis enabled. No reviewers are risky. |
+| `dataset12.csv` | Primary and secondary submission domains enabled. The algorithm must choose between primary and secondary domains to achieve a valid assignment. |
+| `dataset13.csv` | Same as dataset12, with risk analysis enabled. All reviewers are risky. |
+| `dataset14.csv` | Primary and secondary submission domains enabled with risk analysis. Both domains are required to obtain a valid assignment, no risky reviewers. |
 
-(faltam casos teste para assignmente = 2!)
-(fazer programa para o secunddary domain!)
-(adaptar para os modos!)
+
+
 (explicar como usar os meus datasets para corrigir o trabalho dos alunos!)
 You need to copy the run_all.sh the input file with the datasets, you can add more datasets and then just build and run. + risk!
 avisar da comand line ...
