@@ -1,0 +1,51 @@
+#Submissions
+#Id, Title, Authors,E-mail,Primary,Secondary
+1, "Quantum Networks for AI", Alice Brown, alice.brown@gmail.com, 1, 2
+2, "Secure Distributed Ledgers", John Smith, john.smith@gmail.com, 2, 3
+3, "Neural Rendering Pipelines", Maria Costa, maria.costa@gmail.com, 3, 4
+4, "Adaptive Compiler Optimizations", Rui Fernandes, rfernandes@gmail.com, 4, 1
+5, "Autonomous Vehicle Planning", Carla Gomes, carla.gomes@gmail.com, 5, 3
+6, "Efficient Graph Algorithms", Pedro Santos, pedro.santos@gmail.com, 2, 1
+7, "Federated Learning Systems", Ana Pereira, ana.pereira@gmail.com, 3, 
+8, "Next-Gen Cloud Scheduling", Bruno Alves, bruno.alves@gmail.com, 1, 4
+9, "Low-Latency Edge Computing", Sofia Lopes, sofia.lopes@gmail.com, 2, 
+10, "Parallel Programming Models", Miguel Rocha, miguel.rocha@gmail.com, 4, 3
+11, "Privacy-Preserving Databases", Tiago Martins, tiago.martins@gmail.com, 5, 2
+12, "Large-Scale Simulation Engines", Helena Pinto, helena.pinto@gmail.com, 3, 5
+13, "Blockchain Consensus Protocols", David Silva, david.silva@gmail.com, 2, 4
+14, "AI-Assisted Code Generation", Marta Nunes, marta.nunes@gmail.com, 1, 
+15, "GPU Memory Optimization", Ricardo Melo, ricardo.melo@gmail.com, 4, 2
+#
+#Reviewers
+#Id, Name, E-mail,Primary,Secondary
+1, Jaqueline N. Chame, jchame@yahoo.com, 1, 
+2, Mary W. Hall, mhall@hotmail.edu, 1, 4
+3, Daniel Carter, dcarter@gmail.com, 2, 3
+4, Laura Chen, laura.chen@gmail.com, 3, 
+5, Victor Mendes, vmendes@gmail.com, 4, 1
+6, Sandra Oliveira, sandra.oliveira@gmail.com, 5, 3
+7, Kevin Patel, kpatel@gmail.com, 2, 
+8, Robert Green, rgreen@gmail.com, 3, 5
+9, Lisa Turner, lturner@gmail.com, 1, 2
+10, Eduardo Costa, ecosta@gmail.com, 4, 
+11, Patricia Diaz, pdiaz@gmail.com, 5, 2
+12, Andrew Scott, ascott@gmail.com, 2, 4
+13, Juliana Ribeiro, jribeiro@gmail.com, 3, 
+14, Tomas Novak, tnovak@gmail.com, 1, 5
+15, Elena Petrova, epetrova@gmail.com, 4, 3
+16, Marco Bianchi, mbianchi@gmail.com, 2, 
+17, Olivia White, owhite@gmail.com, 3, 1
+18, Gabriel Souza, gsouza@gmail.com, 5, 4
+19, Chen Li, chen.li@gmail.com, 1, 
+20, Samuel Clark, sclark@gmail.com, 4, 2
+#Parameters
+MinReviewsPerSubmission, 3
+MaxReviewsPerReviewer, 6
+PrimaryReviewerExpertise, 1
+SecondaryReviewerExpertise, 0
+PrimarySubmissionDomain, 1
+SecondarySubmissionDomain, 0
+#Control
+GenerateAssignments, 1
+RiskAnalysis, 1
+OutputFileName, "output/dataset20.csv"

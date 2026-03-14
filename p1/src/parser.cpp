@@ -54,8 +54,8 @@ static bool isQuotedString(const std::string &str)
     return str.size() >= 2 && str.front() == '"' && str.back() == '"';
 }
 
-Parameters parseInputFile(const std::string &path, std::vector<Topic> &submissions,
-                           std::vector<Topic> &reviewers)
+Config parseInputFile(const std::string &path, std::vector<Topic> &submissions,
+                          std::vector<Topic> &reviewers)
 {
     std::ifstream file(path);
     if (!file.is_open())
@@ -63,7 +63,7 @@ Parameters parseInputFile(const std::string &path, std::vector<Topic> &submissio
         throw std::runtime_error("Cannot open: " + path);
     }
 
-    Parameters result;
+    Config result;
     std::string section, line;
 
     while (std::getline(file, line))
@@ -157,12 +157,21 @@ Parameters parseInputFile(const std::string &path, std::vector<Topic> &submissio
                     }
                     result.max_reviews_per_reviewer = value;
                 }
-                else if (fields[0] == "PrimaryReviewerExpertise" ||
-                         fields[0] == "SecondaryReviewerExpertise" ||
-                         fields[0] == "PrimarySubmissionDomain" ||
-                         fields[0] == "SecondarySubmissionDomain")
+                else if (fields[0] == "PrimaryReviewerExpertise")
                 {
-                    continue;
+                    result.primary_reviewer_expertise = value;
+                }
+                else if (fields[0] == "SecondaryReviewerExpertise")
+                {
+                    result.secondary_reviewer_expertise = value;
+                }
+                else if (fields[0] == "PrimarySubmissionDomain")
+                {
+                    result.primary_submission_domain = value;
+                }
+                else if (fields[0] == "SecondarySubmissionDomain")
+                {
+                    result.secondary_submission_domain = value;
                 }
             }
             catch (const std::runtime_error &)

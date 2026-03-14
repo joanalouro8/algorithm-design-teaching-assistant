@@ -9,17 +9,19 @@ struct Topic
     int secondary_topic;
 };
 
-
-struct Parameters
+struct Config
 {
-    int min_reviews_per_submission = 3;
-    int max_reviews_per_reviewer = 5;
+    int min_reviews_per_submission = 1;
+    int max_reviews_per_reviewer = 1;
+    int primary_reviewer_expertise = 1;
+    int secondary_reviewer_expertise = 0;
+    int primary_submission_domain = 1;
+    int secondary_submission_domain = 0;
+
     int generate_assignments = 0;
-    int risk_analysis = 1;
+    int risk_analysis = 0;
     std::string output_file_name = "output.csv";
 };
 
-
-
-Parameters parseInputFile(const std::string &path, std::vector<Topic> &submissions,
-                           std::vector<Topic> &reviewers);
+Config parseInputFile(const std::string &path, std::vector<Topic> &submissions,
+                          std::vector<Topic> &reviewers);

@@ -87,7 +87,8 @@ void fordFulkerson(Graph<T> *g, Vertex<T> *s, Vertex<T> *t)
 void buildGraph(Graph<int> &graph,
                 const std::vector<Topic> &submissions_topic,
                 const std::vector<Topic> &reviewers_topic,
-                const Parameters &data,
+                const Config &config,
+                bool secondary_domain,
                 std::vector<Vertex<int> *> &submissions,
                 int skip_reviewer_index = -1)
 {
@@ -104,11 +105,15 @@ void buildGraph(Graph<int> &graph,
     {
         int graph_index = SUBMISSIONS_OFFSET + submission_index;
         graph.addVertex(graph_index);
-        Vertex<int> *sub_vertex = graph.findVertex(graph_index);
-        sub_vertex->setId(submissions_topic[submission_index].id);
-        sub_vertex->setExpertise(submissions_topic[submission_index].primary_topic);
-        source_vertex->addEdge(sub_vertex, data.min_reviews_per_submission);
-        submissions[submission_index] = sub_vertex;
+        Vertex<int> *new_submission = graph.findVertex(graph_index);
+        new_submission->setId(submissions_topic[submission_index].id);
+        new_submission->setFirstExpertise(submissions_topic[submission_index].primary_topic);
+        if (secondary_domain)
+        {
+            new_submission->setSecondExpertise(submissions_topic[submission_index].secondary_topic);
+        }
+        source_vertex->addEdge(new_submission, config.min_reviews_per_submission);
+        submissions[submission_index] = new_submission;
     }
 
     for (int reviewer_index = 0; reviewer_index < (int)reviewers_topic.size(); ++reviewer_index)
@@ -120,16 +125,17 @@ void buildGraph(Graph<int> &graph,
 
         int graph_index = reviewers_offset + reviewer_index;
         graph.addVertex(graph_index);
-        Vertex<int> *rev_vertex = graph.findVertex(graph_index);
-        rev_vertex->setId(reviewers_topic[reviewer_index].id);
-        rev_vertex->setExpertise(reviewers_topic[reviewer_index].primary_topic);
-        rev_vertex->addEdge(terminal_vertex, data.max_reviews_per_reviewer);
+        Vertex<int> *new_review = graph.findVertex(graph_index);
+        new_review->setId(reviewers_topic[reviewer_index].id);
+        new_review->setFirstExpertise(reviewers_topic[reviewer_index].primary_topic);
+        new_review->addEdge(terminal_vertex, config.max_reviews_per_reviewer);
 
-        for (Vertex<int> *sub_vertex : submissions)
+        for (Vertex<int> *new_submission : submissions)
         {
-            if (sub_vertex->getExpertise() == rev_vertex->getExpertise())
+            if (new_submission->getFirstExpertise() == new_review->getFirstExpertise() ||
+                new_submission->getSecondExpertise() == new_review->getFirstExpertise())
             {
-                sub_vertex->addEdge(rev_vertex, 1);
+                new_submission->addEdge(new_review, 1);
             }
         }
     }
@@ -144,7 +150,7 @@ std::vector<Assignment> collectAssignments(const std::vector<Vertex<int> *> &sub
         {
             if (edge->getFlow() == 1.0)
             {
-                assignments.push_back({vertex->getId(), edge->getDest()->getId(), vertex->getExpertise()});
+                assignments.push_back({vertex->getId(), edge->getDest()->getId(), edge->getDest()->getFirstExpertise()});
             }
         }
     }
@@ -161,7 +167,7 @@ std::vector<UndercoveredSubmission> collectUndercovered(const std::vector<Vertex
             int missing_reviews = (int)(edge->getWeight() - edge->getFlow());
             if (missing_reviews > 0)
             {
-                undercovered.push_back({vertex->getId(), vertex->getExpertise(), missing_reviews});
+                undercovered.push_back({vertex->getId(), vertex->getFirstExpertise(), missing_reviews});
             }
         }
     }
@@ -170,26 +176,28 @@ std::vector<UndercoveredSubmission> collectUndercovered(const std::vector<Vertex
 
 bool isRisky(const std::vector<Topic> &submissions_topic,
              const std::vector<Topic> &reviewers_topic,
-             const Parameters &data,
+             const Config &config,
+             bool secondary_domain,
              int skip_index,
              const std::vector<UndercoveredSubmission> &baseline_undercovered)
 {
     Graph<int> trial_graph;
     std::vector<Vertex<int> *> trial_submissions;
-    buildGraph(trial_graph, submissions_topic, reviewers_topic, data, trial_submissions, skip_index);
+    buildGraph(trial_graph, submissions_topic, reviewers_topic, config, secondary_domain, trial_submissions, skip_index);
     fordFulkerson(&trial_graph, trial_graph.findVertex(SOURCE), trial_graph.findVertex(TERMINAL));
     return collectUndercovered(trial_submissions).size() > baseline_undercovered.size();
 }
 
 std::vector<int> collectRiskyReviewers(const std::vector<Topic> &submissions_topic,
                                        const std::vector<Topic> &reviewers_topic,
-                                       const Parameters &data,
+                                       const Config &config,
+                                       bool secondary_domain,
                                        const std::vector<UndercoveredSubmission> &baseline_undercovered)
 {
     std::vector<int> risky_reviewers;
     for (int index = 0; index < (int)reviewers_topic.size(); ++index)
     {
-        if (isRisky(submissions_topic, reviewers_topic, data, index, baseline_undercovered))
+        if (isRisky(submissions_topic, reviewers_topic, config, secondary_domain, index, baseline_undercovered))
         {
             risky_reviewers.push_back(reviewers_topic[index].id);
         }
@@ -201,7 +209,12 @@ std::vector<int> collectRiskyReviewers(const std::vector<Topic> &submissions_top
 void writeAssignmentsBySubmission(std::ofstream &output_file, std::vector<Assignment> assignments)
 {
     std::sort(assignments.begin(), assignments.end(), [](const Assignment &lhs, const Assignment &rhs)
-              { return lhs.submissionId < rhs.submissionId; });
+              {
+        if (lhs.submissionId != rhs.submissionId)
+        {
+            return lhs.submissionId < rhs.submissionId;
+        }
+        return lhs.reviewerId < rhs.reviewerId; });
 
     output_file << "#SubmissionId,ReviewerId,Match\n";
     for (const auto &assignment : assignments)
@@ -213,7 +226,12 @@ void writeAssignmentsBySubmission(std::ofstream &output_file, std::vector<Assign
 void writeAssignmentsByReviewer(std::ofstream &output_file, std::vector<Assignment> assignments)
 {
     std::sort(assignments.begin(), assignments.end(), [](const Assignment &lhs, const Assignment &rhs)
-              { return lhs.reviewerId < rhs.reviewerId; });
+              {
+        if (lhs.reviewerId != rhs.reviewerId)
+        {
+            return lhs.reviewerId < rhs.reviewerId;
+        }
+        return lhs.submissionId < rhs.submissionId; });
 
     output_file << "#ReviewerId,SubmissionId,Match\n";
     for (const auto &assignment : assignments)
@@ -221,16 +239,15 @@ void writeAssignmentsByReviewer(std::ofstream &output_file, std::vector<Assignme
         output_file << assignment.reviewerId << ", " << assignment.submissionId << ", " << assignment.topic << "\n";
     }
 }
-
 void writeUndercovered(std::ofstream &output_file, std::vector<UndercoveredSubmission> undercovered)
 {
     std::sort(undercovered.begin(), undercovered.end(), [](const UndercoveredSubmission &lhs, const UndercoveredSubmission &rhs)
               { return lhs.submissionId < rhs.submissionId; });
 
     output_file << "#SubmissionId,Domain,MissingReviews\n";
-    for (const auto &sub_entry : undercovered)
+    for (const auto &submission : undercovered)
     {
-        output_file << sub_entry.submissionId << ", " << sub_entry.topic << ", " << sub_entry.missingReviews << "\n";
+        output_file << submission.submissionId << ", " << submission.topic << ", " << submission.missingReviews << "\n";
     }
 }
 
@@ -250,36 +267,41 @@ void writeRiskyReviewers(std::ofstream &output_file, const std::vector<int> &ris
 
 void generateAssignments(std::vector<Topic> &submissions_topic,
                          std::vector<Topic> &reviewers_topic,
-                         Parameters data,
+                         const Config &config,
+                         bool secondary_domain,
                          std::ofstream &risk_out)
 {
     Graph<int> main_graph;
     std::vector<Vertex<int> *> submissions;
-    buildGraph(main_graph, submissions_topic, reviewers_topic, data, submissions);
+    buildGraph(main_graph, submissions_topic, reviewers_topic, config, secondary_domain, submissions);
     fordFulkerson(&main_graph, main_graph.findVertex(SOURCE), main_graph.findVertex(TERMINAL));
 
     auto assignments = collectAssignments(submissions);
     auto baseline_undercovered = collectUndercovered(submissions);
 
-    std::ofstream output_file(data.output_file_name);
+    std::ofstream output_file(config.output_file_name);
     if (!output_file.is_open())
     {
-        std::cerr << "Could not open output file: " << data.output_file_name << "\n";
+        std::cerr << "Could not open output file: " << config.output_file_name << "\n";
         return;
     }
 
     writeAssignmentsBySubmission(output_file, assignments);
     writeAssignmentsByReviewer(output_file, assignments);
     output_file << "#Total: " << assignments.size() << "\n";
-    writeUndercovered(output_file, baseline_undercovered);
 
-    if (data.risk_analysis > 0)
+    if (baseline_undercovered.size() > 0)
     {
-        auto risky_reviewers = collectRiskyReviewers(submissions_topic, reviewers_topic, data, baseline_undercovered);
-        writeRiskyReviewers(output_file, risky_reviewers, data.risk_analysis);
+        writeUndercovered(output_file, baseline_undercovered);
+    }
+
+    if (config.risk_analysis > 0)
+    {
+        auto risky_reviewers = collectRiskyReviewers(submissions_topic, reviewers_topic, config, secondary_domain, baseline_undercovered);
+        writeRiskyReviewers(output_file, risky_reviewers, config.risk_analysis);
         if (risk_out.is_open())
         {
-            writeRiskyReviewers(risk_out, risky_reviewers, data.risk_analysis);
+            writeRiskyReviewers(risk_out, risky_reviewers, config.risk_analysis);
         }
     }
 

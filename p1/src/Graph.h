@@ -39,8 +39,10 @@ public:
     //New methods
     int getId() const;
     void setId(int id);
-    int getExpertise() const;
-    void setExpertise(int expertise);
+    int getFirstExpertise() const;
+    void setFirstExpertise(int expertise);
+    int getSecondExpertise() const;
+    void setSecondExpertise(int expertise);
 
     int getLow() const;
     void setLow(int value);
@@ -69,7 +71,8 @@ protected:
 
     // new fields 
     int id;
-    int expertise;
+    int first_expertise;
+    int second_expertise = -1;
 
     std::vector<Edge<T> *> incoming; // incoming edges
 
@@ -265,15 +268,27 @@ void Vertex<T>::setId(int id)
 }
 
 template <class T>
-int Vertex<T>::getExpertise() const
+int Vertex<T>::getFirstExpertise() const
 {
-    return this->expertise;
+    return this->first_expertise;
 }
 
 template <class T>
-void Vertex<T>::setExpertise(int expertise)
+void Vertex<T>::setFirstExpertise(int expertise)
 {
-    this->expertise = expertise;
+    this->first_expertise = expertise;
+}
+
+template <class T>
+int Vertex<T>::getSecondExpertise() const
+{
+    return this->second_expertise;
+}
+
+template <class T>
+void Vertex<T>::setSecondExpertise(int expertise)
+{
+    this->second_expertise = expertise;
 }
 
 template <class T>

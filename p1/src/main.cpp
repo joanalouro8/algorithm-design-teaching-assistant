@@ -14,10 +14,10 @@ int main(int argc, char *argv[])
 
     std::vector<Topic> submissions;
     std::vector<Topic> reviewers;
-    Parameters data = parseInputFile(argv[2], submissions, reviewers);
+    Config config = parseInputFile(argv[2], submissions, reviewers);
 
     std::ofstream riskOut;
-    if (argc == 4 && data.risk_analysis > 0)
+    if (argc == 4 && config.risk_analysis > 0)
     {
         riskOut.open(argv[3]);
         if (!riskOut)
@@ -27,8 +27,25 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (data.generate_assignments > 0){
-        generateAssignments(submissions, reviewers, data, riskOut);
+    if (config.primary_reviewer_expertise == 1 && config.primary_submission_domain == 1)
+    {
+        if (config.generate_assignments == 1)
+        {
+            generateAssignments(submissions, reviewers, config, false, riskOut);
+        }
+        else if (config.generate_assignments == 2)
+        {
+            
+            generateAssignments(submissions, reviewers, config, config.secondary_submission_domain, riskOut);
+        }
+        else
+        {
+            std::cerr << "Not implemented this generate_assignment!" << "\n";
+        }
+    }
+    else
+    {
+        std::cerr << "Impossible to make assignment, the primary reviewer/submission domain has to be true." << "\n";
     }
 
     return 0;
