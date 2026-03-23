@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/myProg.dir/src/main.cpp.o CMakeFiles/myProg.dir/src/parser.cpp.o -o /home/joana/Documents/da/DA---Monitoria/p1/myProg 
