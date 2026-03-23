@@ -1,0 +1,3 @@
+/home/joana/Documents/da/DA---Monitoria/p1/build/CMakeFiles/myProg.dir
+/home/joana/Documents/da/DA---Monitoria/p1/build/CMakeFiles/edit_cache.dir
+/home/joana/Documents/da/DA---Monitoria/p1/build/CMakeFiles/rebuild_cache.dir
