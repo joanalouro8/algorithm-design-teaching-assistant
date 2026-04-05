@@ -21,7 +21,6 @@ template <class T>
 class Vertex {
 public:
     Vertex(T in);
-    // bool operator<(Vertex<T> & vertex) const; // // required by MutablePriorityQueue
 
     T getInfo() const;
     std::vector<Edge<T> *> getAdj() const;
@@ -36,14 +35,6 @@ public:
     void setVisited(bool visited);
     void setProcessing(bool processing);
 
-    //New methods
-    int getId() const;
-    void setId(int id);
-    int getFirstExpertise() const;
-    void setFirstExpertise(int expertise);
-    int getSecondExpertise() const;
-    void setSecondExpertise(int expertise);
-
     int getLow() const;
     void setLow(int value);
     int getNum() const;
@@ -55,8 +46,11 @@ public:
     Edge<T> * addEdge(Vertex<T> *dest, double w);
     bool removeEdge(T in);
     void removeOutgoingEdges();
+    //new methods
+    void setDisabled(bool disabled);
+    bool isDisabled() const;
+    int getDegree() const;
 
-    // friend class MutablePriorityQueue<Vertex>;
 protected:
     T info;                // info node
     std::vector<Edge<T> *> adj;  // outgoing edges
@@ -67,16 +61,12 @@ protected:
     int low = -1, num = -1; // used by SCC Tarjan
     unsigned int indegree; // used by topsort
     double dist = 0;
+
+    //new fields
+    bool is_disabled = false; 
     Edge<T> *path = nullptr;
 
-    // new fields 
-    int id;
-    int first_expertise;
-    int second_expertise = -1;
-
     std::vector<Edge<T> *> incoming; // incoming edges
-
-    // int queueIndex = 0; 		// required by MutablePriorityQueue and UFDS
 
     void deleteEdge(Edge<T> *edge);
 };
@@ -98,12 +88,18 @@ public:
     void setSelected(bool selected);
     void setReverse(Edge<T> *reverse);
     void setFlow(double flow);
+    //new method
+    bool isDisabled() const;
+    void setDisabled(bool is_disabled);
 protected:
     Vertex<T> * dest; // destination vertex
     double weight; // edge weight, can also be used for capacity
 
     // auxiliary fields
     bool selected = false;
+
+    //new fields
+    bool is_disabled = false;
 
     // used for bidirectional edges
     Vertex<T> *orig;
@@ -210,10 +206,6 @@ void Vertex<T>::removeOutgoingEdges() {
     }
 }
 
-// template <class T>
-// bool Vertex<T>::operator<(Vertex<T> & vertex) const {
-//     return this->dist < vertex.dist;
-// }
 
 template <class T>
 T Vertex<T>::getInfo() const {
@@ -253,42 +245,6 @@ bool Vertex<T>::isVisited() const {
 template <class T>
 bool Vertex<T>::isProcessing() const {
     return this->processing;
-}
-
-template <class T>
-int Vertex<T>::getId() const
-{
-    return this->id;
-}
-
-template <class T>
-void Vertex<T>::setId(int id)
-{
-    this->id = id;
-}
-
-template <class T>
-int Vertex<T>::getFirstExpertise() const
-{
-    return this->first_expertise;
-}
-
-template <class T>
-void Vertex<T>::setFirstExpertise(int expertise)
-{
-    this->first_expertise = expertise;
-}
-
-template <class T>
-int Vertex<T>::getSecondExpertise() const
-{
-    return this->second_expertise;
-}
-
-template <class T>
-void Vertex<T>::setSecondExpertise(int expertise)
-{
-    this->second_expertise = expertise;
 }
 
 template <class T>
@@ -357,10 +313,41 @@ void Vertex<T>::deleteEdge(Edge<T> *edge) {
     delete edge;
 }
 
+template <class T>
+void Vertex<T>::setDisabled(bool is_disabled)
+{
+    this->is_disabled = is_disabled;
+    if (is_disabled) {
+        for (auto edge : adj) {
+            edge->setDisabled(true);
+        }
+    }
+}
+
+template <class T>
+bool Vertex<T>::isDisabled() const
+{
+    return this->is_disabled;
+}
+
+template <class T>
+int Vertex<T>::getDegree() const
+{
+    int counter = 0;
+    for(auto edge : adj) {
+        if (!edge->isDisabled()) {
+            counter++;
+        }
+    }
+    return counter;
+}
+
 /********************** Edge  ****************************/
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *orig, Vertex<T> *dest, double w): orig(orig), dest(dest), weight(w) {}
+Edge<T>::Edge(Vertex<T> *orig, Vertex<T> *dest, double w) : orig(orig), dest(dest), weight(w)
+{
+}
 
 template <class T>
 Vertex<T> * Edge<T>::getDest() const {
@@ -405,6 +392,19 @@ void Edge<T>::setReverse(Edge<T> *reverse) {
 template <class T>
 void Edge<T>::setFlow(double flow) {
     this->flow = flow;
+}
+
+//new methods
+template <class T>
+void Edge<T>::setDisabled(bool is_disabled)
+{
+    this->is_disabled = is_disabled;
+}
+
+template <class T>
+bool Edge<T>::isDisabled() const
+{
+    return this->is_disabled;
 }
 
 /********************** Graph  ****************************/
