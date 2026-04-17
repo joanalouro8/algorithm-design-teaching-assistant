@@ -1,0 +1,3 @@
+# Free register allocation (placeholder)
+# registers: 3
+# live ranges: 5

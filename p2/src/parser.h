@@ -2,26 +2,34 @@
 #include <string>
 #include <vector>
 
-struct Topic
+struct RangePoint
 {
-    int id;
-    int primary_topic;
-    int secondary_topic;
+    int instruction;
+    bool def;  // marked with '+'
+    bool last; // marked with '-'
+};
+
+struct LiveRange
+{
+    std::string name;
+    std::vector<RangePoint> points;
+};
+
+enum class AlgorithmKind
+{
+    Basic,
+    Splitting,
+    Spilling,
+    Free
 };
 
 struct Config
 {
-    int min_reviews_per_submission = 1;
-    int max_reviews_per_reviewer = 1;
-    int primary_reviewer_expertise = 1;
-    int secondary_reviewer_expertise = 0;
-    int primary_submission_domain = 1;
-    int secondary_submission_domain = 0;
-
-    int generate_assignments = 0;
-    int risk_analysis = 0;
-    std::string output_file_name = "output.csv";
+    int num_registers = 1;
+    AlgorithmKind algorithm = AlgorithmKind::Basic;
+    int algorithm_param = 0; // numeric parameter for splitting/spilling (unused for basic/free)
 };
 
-Config parseInputFile(const std::string &path, std::vector<Topic> &submissions,
-                          std::vector<Topic> &reviewers);
+Config parseInputFiles(const std::string &ranges_path,
+                       const std::string &config_path,
+                       std::vector<LiveRange> &live_ranges);

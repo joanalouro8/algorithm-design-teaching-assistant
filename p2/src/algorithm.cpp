@@ -1,309 +1,132 @@
-#include "Graph.h"
 #include "parser.h"
 #include <iostream>
 #include <fstream>
-#include <algorithm>
+#include <string>
 #include <vector>
 
-static const int SOURCE = 0;
-static const int TERMINAL = 1;
-static const int SUBMISSIONS_OFFSET = 2;
 
-struct Assignment
+static std::string algorithmName(const Config &config)
 {
-    int submissionId;
-    int reviewerId;
-    int topic;
-};
-
-struct UndercoveredSubmission
-{
-    int submissionId;
-    int topic;
-    int missingReviews;
-};
-
-template <class T>
-bool dfsFindAugmentingPath(Vertex<T> *v, Vertex<T> *t, double &flow)
-{
-    v->setVisited(true);
-    if (v == t)
+    switch (config.algorithm)
     {
-        return true;
+    case AlgorithmKind::Basic:
+        return "basic";
+    case AlgorithmKind::Splitting:
+        return "splitting (param=" + std::to_string(config.algorithm_param) + ")";
+    case AlgorithmKind::Spilling:
+        return "spilling (param=" + std::to_string(config.algorithm_param) + ")";
+    case AlgorithmKind::Free:
+        return "free (param=" + std::to_string(config.algorithm_param) + ")";
     }
-    for (auto edge : v->getAdj())
-    {
-        if (!edge->getDest()->isVisited() && (edge->getWeight() - edge->getFlow()) > 0)
-        {
-            flow = std::min(flow, edge->getWeight() - edge->getFlow());
-            if (dfsFindAugmentingPath(edge->getDest(), t, flow))
-            {
-                edge->setFlow(edge->getFlow() + flow);
-                return true;
-            }
-        }
-    }
-    for (auto edge : v->getIncoming())
-    {
-        if (!edge->getOrig()->isVisited() && edge->getFlow() > 0)
-        {
-            flow = std::min(flow, edge->getFlow());
-            if (dfsFindAugmentingPath(edge->getOrig(), t, flow))
-            {
-                edge->setFlow(edge->getFlow() - flow);
-                return true;
-            }
-        }
-    }
-    return false;
+    return "unknown";
 }
 
-template <class T>
-void fordFulkerson(Graph<T> *g, Vertex<T> *s, Vertex<T> *t)
+static void printLiveRanges(const std::vector<LiveRange> &live_ranges)
 {
-    if (s == nullptr || t == nullptr || s == t)
+    std::cout << "Live ranges (" << live_ranges.size() << "):\n";
+    for (const auto &lr : live_ranges)
     {
-        return;
-    }
-    for (auto v : g->getVertexSet())
-    {
-        v->setVisited(false);
-        for (auto e : v->getAdj())
+        std::cout << "  " << lr.name << ":";
+        for (const auto &p : lr.points)
         {
-            e->setFlow(0);
+            std::cout << " " << p.instruction;
+            if (p.def)
+                std::cout << "+";
+            if (p.last)
+                std::cout << "-";
         }
-    }
-    double f = INF;
-    while (dfsFindAugmentingPath(s, t, f))
-    {
-        f = INF;
-        for (auto v : g->getVertexSet())
-        {
-            v->setVisited(false);
-        }
+        std::cout << "\n";
     }
 }
 
-void buildGraph(Graph<int> &graph,
-                const std::vector<Topic> &submissions_topic,
-                const std::vector<Topic> &reviewers_topic,
-                const Config &config,
-                bool secondary_domain,
-                std::vector<Vertex<int> *> &submissions,
-                int skip_reviewer_index = -1)
+
+void runBasic(const std::vector<LiveRange> &live_ranges,
+              const Config &config,
+              std::ofstream &output_file)
 {
-    const int reviewers_offset = SUBMISSIONS_OFFSET + (int)submissions_topic.size();
+    std::cout << "[algorithm] basic  |  registers=" << config.num_registers << "\n";
+    printLiveRanges(live_ranges);
 
-    graph.addVertex(SOURCE);
-    graph.addVertex(TERMINAL);
-
-    Vertex<int> *source_vertex = graph.findVertex(SOURCE);
-    Vertex<int> *terminal_vertex = graph.findVertex(TERMINAL);
-
-    submissions.resize(submissions_topic.size());
-    for (int submission_index = 0; submission_index < (int)submissions_topic.size(); ++submission_index)
-    {
-        int graph_index = SUBMISSIONS_OFFSET + submission_index;
-        graph.addVertex(graph_index);
-        Vertex<int> *new_submission = graph.findVertex(graph_index);
-        new_submission->setId(submissions_topic[submission_index].id);
-        new_submission->setFirstExpertise(submissions_topic[submission_index].primary_topic);
-        if (secondary_domain)
-        {
-            new_submission->setSecondExpertise(submissions_topic[submission_index].secondary_topic);
-        }
-        source_vertex->addEdge(new_submission, config.min_reviews_per_submission);
-        submissions[submission_index] = new_submission;
-    }
-
-    for (int reviewer_index = 0; reviewer_index < (int)reviewers_topic.size(); ++reviewer_index)
-    {
-        if (reviewer_index == skip_reviewer_index)
-        {
-            continue;
-        }
-
-        int graph_index = reviewers_offset + reviewer_index;
-        graph.addVertex(graph_index);
-        Vertex<int> *new_review = graph.findVertex(graph_index);
-        new_review->setId(reviewers_topic[reviewer_index].id);
-        new_review->setFirstExpertise(reviewers_topic[reviewer_index].primary_topic);
-        new_review->addEdge(terminal_vertex, config.max_reviews_per_reviewer);
-
-        for (Vertex<int> *new_submission : submissions)
-        {
-            if (new_submission->getFirstExpertise() == new_review->getFirstExpertise() ||
-                new_submission->getSecondExpertise() == new_review->getFirstExpertise())
-            {
-                new_submission->addEdge(new_review, 1);
-            }
-        }
-    }
+    // TODO: implement basic register allocation
+    output_file << "# Basic register allocation (placeholder)\n";
+    output_file << "# registers: " << config.num_registers << "\n";
+    output_file << "# live ranges: " << live_ranges.size() << "\n";
 }
 
-std::vector<Assignment> collectAssignments(const std::vector<Vertex<int> *> &submissions)
+void runSplitting(const std::vector<LiveRange> &live_ranges,
+                  const Config &config,
+                  std::ofstream &output_file)
 {
-    std::vector<Assignment> assignments;
-    for (Vertex<int> *vertex : submissions)
-    {
-        for (auto edge : vertex->getAdj())
-        {
-            if (edge->getFlow() == 1.0)
-            {
-                assignments.push_back({vertex->getId(), edge->getDest()->getId(), edge->getDest()->getFirstExpertise()});
-            }
-        }
-    }
-    return assignments;
+    std::cout << "[algorithm] splitting  |  registers=" << config.num_registers
+              << "  param=" << config.algorithm_param << "\n";
+    printLiveRanges(live_ranges);
+
+    // TODO: implement splitting register allocation
+    output_file << "# Splitting register allocation (placeholder)\n";
+    output_file << "# registers: " << config.num_registers << "\n";
+    output_file << "# param: " << config.algorithm_param << "\n";
+    output_file << "# live ranges: " << live_ranges.size() << "\n";
 }
 
-std::vector<UndercoveredSubmission> collectUndercovered(const std::vector<Vertex<int> *> &submissions)
+void runSpilling(const std::vector<LiveRange> &live_ranges,
+                 const Config &config,
+                 std::ofstream &output_file)
 {
-    std::vector<UndercoveredSubmission> undercovered;
-    for (Vertex<int> *vertex : submissions)
-    {
-        for (auto edge : vertex->getIncoming())
-        {
-            int missing_reviews = (int)(edge->getWeight() - edge->getFlow());
-            if (missing_reviews > 0)
-            {
-                undercovered.push_back({vertex->getId(), vertex->getFirstExpertise(), missing_reviews});
-            }
-        }
-    }
-    return undercovered;
+    std::cout << "[algorithm] spilling  |  registers=" << config.num_registers
+              << "  param=" << config.algorithm_param << "\n";
+    printLiveRanges(live_ranges);
+
+    // TODO: implement spilling register allocation
+    output_file << "# Spilling register allocation (placeholder)\n";
+    output_file << "# registers: " << config.num_registers << "\n";
+    output_file << "# param: " << config.algorithm_param << "\n";
+    output_file << "# live ranges: " << live_ranges.size() << "\n";
 }
 
-bool isRisky(const std::vector<Topic> &submissions_topic,
-             const std::vector<Topic> &reviewers_topic,
+void runFree(const std::vector<LiveRange> &live_ranges,
              const Config &config,
-             bool secondary_domain,
-             int skip_index,
-             const std::vector<UndercoveredSubmission> &baseline_undercovered)
+             std::ofstream &output_file)
 {
-    Graph<int> trial_graph;
-    std::vector<Vertex<int> *> trial_submissions;
-    buildGraph(trial_graph, submissions_topic, reviewers_topic, config, secondary_domain, trial_submissions, skip_index);
-    fordFulkerson(&trial_graph, trial_graph.findVertex(SOURCE), trial_graph.findVertex(TERMINAL));
-    return collectUndercovered(trial_submissions).size() > baseline_undercovered.size();
+    std::cout << "[algorithm] free  |  registers=" << config.num_registers << "\n";
+    printLiveRanges(live_ranges);
+
+    // TODO: implement free register allocation
+    output_file << "# Free register allocation (placeholder)\n";
+    output_file << "# registers: " << config.num_registers << "\n";
+    output_file << "# live ranges: " << live_ranges.size() << "\n";
 }
 
-std::vector<int> collectRiskyReviewers(const std::vector<Topic> &submissions_topic,
-                                       const std::vector<Topic> &reviewers_topic,
-                                       const Config &config,
-                                       bool secondary_domain,
-                                       const std::vector<UndercoveredSubmission> &baseline_undercovered)
+
+void runAlgorithm(const std::vector<LiveRange> &live_ranges,
+                  const Config &config,
+                  const std::string &output_path)
 {
-    std::vector<int> risky_reviewers;
-    for (int index = 0; index < (int)reviewers_topic.size(); ++index)
-    {
-        if (isRisky(submissions_topic, reviewers_topic, config, secondary_domain, index, baseline_undercovered))
-        {
-            risky_reviewers.push_back(reviewers_topic[index].id);
-        }
-    }
-    std::sort(risky_reviewers.begin(), risky_reviewers.end());
-    return risky_reviewers;
-}
-
-void writeAssignmentsBySubmission(std::ofstream &output_file, std::vector<Assignment> assignments)
-{
-    std::sort(assignments.begin(), assignments.end(), [](const Assignment &lhs, const Assignment &rhs)
-              {
-        if (lhs.submissionId != rhs.submissionId)
-        {
-            return lhs.submissionId < rhs.submissionId;
-        }
-        return lhs.reviewerId < rhs.reviewerId; });
-
-    output_file << "#SubmissionId,ReviewerId,Match\n";
-    for (const auto &assignment : assignments)
-    {
-        output_file << assignment.submissionId << ", " << assignment.reviewerId << ", " << assignment.topic << "\n";
-    }
-}
-
-void writeAssignmentsByReviewer(std::ofstream &output_file, std::vector<Assignment> assignments)
-{
-    std::sort(assignments.begin(), assignments.end(), [](const Assignment &lhs, const Assignment &rhs)
-              {
-        if (lhs.reviewerId != rhs.reviewerId)
-        {
-            return lhs.reviewerId < rhs.reviewerId;
-        }
-        return lhs.submissionId < rhs.submissionId; });
-
-    output_file << "#ReviewerId,SubmissionId,Match\n";
-    for (const auto &assignment : assignments)
-    {
-        output_file << assignment.reviewerId << ", " << assignment.submissionId << ", " << assignment.topic << "\n";
-    }
-}
-void writeUndercovered(std::ofstream &output_file, std::vector<UndercoveredSubmission> undercovered)
-{
-    std::sort(undercovered.begin(), undercovered.end(), [](const UndercoveredSubmission &lhs, const UndercoveredSubmission &rhs)
-              { return lhs.submissionId < rhs.submissionId; });
-
-    output_file << "#SubmissionId,Domain,MissingReviews\n";
-    for (const auto &submission : undercovered)
-    {
-        output_file << submission.submissionId << ", " << submission.topic << ", " << submission.missingReviews << "\n";
-    }
-}
-
-void writeRiskyReviewers(std::ofstream &output_file, const std::vector<int> &risky_reviewers, int risk_param)
-{
-    output_file << "#Risk Analysis: " << risk_param << "\n";
-    for (int index = 0; index < (int)risky_reviewers.size(); ++index)
-    {
-        if (index > 0)
-        {
-            output_file << ", ";
-        }
-        output_file << risky_reviewers[index];
-    }
-    output_file << "\n";
-}
-
-void generateAssignments(std::vector<Topic> &submissions_topic,
-                         std::vector<Topic> &reviewers_topic,
-                         const Config &config,
-                         bool secondary_domain,
-                         std::ofstream &risk_out)
-{
-    Graph<int> main_graph;
-    std::vector<Vertex<int> *> submissions;
-    buildGraph(main_graph, submissions_topic, reviewers_topic, config, secondary_domain, submissions);
-    fordFulkerson(&main_graph, main_graph.findVertex(SOURCE), main_graph.findVertex(TERMINAL));
-
-    auto assignments = collectAssignments(submissions);
-    auto baseline_undercovered = collectUndercovered(submissions);
-
-    std::ofstream output_file(config.output_file_name);
+    std::ofstream output_file(output_path);
     if (!output_file.is_open())
     {
-        std::cerr << "Could not open output file: " << config.output_file_name << "\n";
+        std::cerr << "Could not open output file: " << output_path << "\n";
         return;
     }
 
-    writeAssignmentsBySubmission(output_file, assignments);
-    writeAssignmentsByReviewer(output_file, assignments);
-    output_file << "#Total: " << assignments.size() << "\n";
-
-    if (baseline_undercovered.size() > 0)
+    switch (config.algorithm)
     {
-        writeUndercovered(output_file, baseline_undercovered);
+    case AlgorithmKind::Basic:
+        runBasic(live_ranges, config, output_file);
+        break;
+    case AlgorithmKind::Splitting:
+        runSplitting(live_ranges, config, output_file);
+        break;
+    case AlgorithmKind::Spilling:
+        runSpilling(live_ranges, config, output_file);
+        break;
+    case AlgorithmKind::Free:
+        runFree(live_ranges, config, output_file);
+        break;
+    default:
+        std::cerr << "Unknown algorithm variant.\n";
+        return;
     }
 
-    if (config.risk_analysis > 0)
-    {
-        auto risky_reviewers = collectRiskyReviewers(submissions_topic, reviewers_topic, config, secondary_domain, baseline_undercovered);
-        writeRiskyReviewers(output_file, risky_reviewers, config.risk_analysis);
-        if (risk_out.is_open())
-        {
-            writeRiskyReviewers(risk_out, risky_reviewers, config.risk_analysis);
-        }
-    }
-
+    std::cout << "Output written to: " << output_path << "\n";
     output_file.close();
 }

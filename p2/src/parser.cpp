@@ -1,178 +1,106 @@
 #include "parser.h"
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
+
 
 static std::string trim(const std::string &str)
 {
     size_t first = str.find_first_not_of(" \t\r\n");
     size_t last = str.find_last_not_of(" \t\r\n");
     if (first == std::string::npos)
-    {
         return "";
-    }
     return str.substr(first, last - first + 1);
 }
 
-static std::string stripQuotes(const std::string &str)
+static std::vector<RangePoint> parsePoints(const std::string &points_str)
 {
-    size_t first = str.find_first_not_of("\"");
-    size_t last = str.find_last_not_of("\"");
-    if (first == std::string::npos)
+    std::vector<RangePoint> points;
+    std::istringstream ss(points_str);
+    std::string token;
+    while (std::getline(ss, token, ','))
     {
-        return "";
+        token = trim(token);
+        if (token.empty())
+            continue;
+
+        RangePoint rp{0, false, false};
+        if (!token.empty() && token.back() == '+')
+        {
+            rp.def = true;
+            token.pop_back();
+        }
+        else if (!token.empty() && token.back() == '-')
+        {
+            rp.last = true;
+            token.pop_back();
+        }
+
+        try
+        {
+            rp.instruction = std::stoi(token);
+        }
+        catch (const std::exception &)
+        {
+            throw std::runtime_error("Invalid instruction number in live range: '" + token + "'");
+        }
+        points.push_back(rp);
     }
-    return str.substr(first, last - first + 1);
+    return points;
 }
 
-static std::vector<std::string> split(const std::string &line)
-{
-    std::vector<std::string> fields;
-    std::string current;
-    bool in_quotes = false;
-    for (char c : line)
-    {
-        if (c == '"')
-        {
-            in_quotes = !in_quotes;
-        }
-        else if (c == ',' && !in_quotes)
-        {
-            fields.push_back(trim(current));
-            current.clear();
-        }
-        else
-        {
-            current += c;
-        }
-    }
-    fields.push_back(trim(current));
-    return fields;
-}
-
-static bool isQuotedString(const std::string &str)
-{
-    return str.size() >= 2 && str.front() == '"' && str.back() == '"';
-}
-
-Config parseInputFile(const std::string &path, std::vector<Topic> &submissions,
-                          std::vector<Topic> &reviewers)
+static void parseLiveRangesFile(const std::string &path, std::vector<LiveRange> &live_ranges)
 {
     std::ifstream file(path);
     if (!file.is_open())
-    {
-        throw std::runtime_error("Cannot open: " + path);
-    }
+        throw std::runtime_error("Cannot open ranges file: " + path);
 
-    Config result;
-    std::string section, line;
-
+    std::string line;
     while (std::getline(file, line))
     {
         std::string trimmed = trim(line);
-        if (trimmed.empty())
-        {
+        if (trimmed.empty() || trimmed[0] == '#')
             continue;
-        }
 
-        if (trimmed[0] == '#')
-        {
-            std::string tag = trim(trimmed.substr(1));
-            if (tag == "Submissions")
-            {
-                section = "Submissions";
-            }
-            else if (tag == "Reviewers")
-            {
-                section = "Reviewers";
-            }
-            else if (tag == "Parameters")
-            {
-                section = "Parameters";
-            }
-            else if (tag == "Control")
-            {
-                section = "Control";
-            }
+        size_t colon = trimmed.find(':');
+        if (colon == std::string::npos)
+            throw std::runtime_error("Expected 'name: points' format, got: " + trimmed);
+
+        LiveRange lr;
+        lr.name = trim(trimmed.substr(0, colon));
+        lr.points = parsePoints(trimmed.substr(colon + 1));
+        live_ranges.push_back(std::move(lr));
+    }
+}
+
+static Config parseConfigFile(const std::string &path)
+{
+    std::ifstream file(path);
+    if (!file.is_open())
+        throw std::runtime_error("Cannot open config file: " + path);
+
+    Config config;
+    std::string line;
+    while (std::getline(file, line))
+    {
+        std::string trimmed = trim(line);
+        if (trimmed.empty() || trimmed[0] == '#')
             continue;
-        }
 
-        std::vector<std::string> fields = split(trimmed);
+        size_t colon = trimmed.find(':');
+        if (colon == std::string::npos)
+            throw std::runtime_error("Expected 'key: value' format, got: " + trimmed);
 
-        if (section == "Submissions")
-        {
-            if (fields.size() < 5)
-            {
-                throw std::runtime_error("Submission is missing fields (id, title, authors, email, primary_topic)");
-            }
-            try
-            {
-                Topic submission;
-                submission.id = std::stoi(fields[0]);
-                submission.primary_topic = std::stoi(fields[4]);
-                submission.secondary_topic = (fields.size() > 5 && !fields[5].empty()) ? std::stoi(fields[5]) : -1;
-                submissions.push_back(submission);
-            }
-            catch (const std::exception &)
-            {
-                throw std::runtime_error("Submission has invalid integer fields");
-            }
-        }
-        else if (section == "Reviewers")
-        {
-            if (fields.size() < 4)
-            {
-                throw std::runtime_error("Reviewer is missing fields (id, name, email, primary_topic)");
-            }
-            try
-            {
-                Topic reviewer;
-                reviewer.id = std::stoi(fields[0]);
-                reviewer.primary_topic = std::stoi(fields[3]);
-                reviewer.secondary_topic = (fields.size() > 4 && !fields[4].empty()) ? std::stoi(fields[4]) : -1;
-                reviewers.push_back(reviewer);
-            }
-            catch (const std::exception &)
-            {
-                throw std::runtime_error("Reviewer has invalid integer fields");
-            }
-        }
-        else if (section == "Parameters" && fields.size() >= 2)
+        std::string key = trim(trimmed.substr(0, colon));
+        std::string value = trim(trimmed.substr(colon + 1));
+
+        if (key == "registers")
         {
             try
             {
-                int value = std::stoi(fields[1]);
-                if (fields[0] == "MinReviewsPerSubmission")
-                {
-                    if (value < 1)
-                    {
-                        throw std::runtime_error("MinReviewsPerSubmission must be >= 1");
-                    }
-                    result.min_reviews_per_submission = value;
-                }
-                else if (fields[0] == "MaxReviewsPerReviewer")
-                {
-                    if (value < 1)
-                    {
-                        throw std::runtime_error("MaxReviewsPerReviewer must be >= 1");
-                    }
-                    result.max_reviews_per_reviewer = value;
-                }
-                else if (fields[0] == "PrimaryReviewerExpertise")
-                {
-                    result.primary_reviewer_expertise = value;
-                }
-                else if (fields[0] == "SecondaryReviewerExpertise")
-                {
-                    result.secondary_reviewer_expertise = value;
-                }
-                else if (fields[0] == "PrimarySubmissionDomain")
-                {
-                    result.primary_submission_domain = value;
-                }
-                else if (fields[0] == "SecondarySubmissionDomain")
-                {
-                    result.secondary_submission_domain = value;
-                }
+                config.num_registers = std::stoi(value);
+                if (config.num_registers < 1)
+                    throw std::runtime_error("registers must be >= 1");
             }
             catch (const std::runtime_error &)
             {
@@ -180,61 +108,55 @@ Config parseInputFile(const std::string &path, std::vector<Topic> &submissions,
             }
             catch (const std::exception &)
             {
-                throw std::runtime_error("Parameter value is not an integer: " + fields[0]);
+                throw std::runtime_error("registers value must be an integer");
             }
         }
-        else if (section == "Control" && fields.size() >= 2)
+        else if (key == "algorithm")
         {
-            if (fields[0] == "GenerateAssignments")
+            std::istringstream ss(value);
+            std::string kind;
+            ss >> kind;
+
+            if (kind == "basic")
             {
-                try
-                {
-                    int value = std::stoi(fields[1]);
-                    if (value < 0)
-                    {
-                        throw std::runtime_error("GenerateAssignments must be >= 0");
-                    }
-                    result.generate_assignments = value;
-                }
-                catch (const std::runtime_error &)
-                {
-                    throw;
-                }
-                catch (const std::exception &)
-                {
-                    throw std::runtime_error("GenerateAssignments must be an integer");
+                config.algorithm = AlgorithmKind::Basic;
+                config.algorithm_param = 0;
+            }
+            else if (kind == "splitting")
+            {
+                config.algorithm = AlgorithmKind::Splitting;
+                if (!(ss >> config.algorithm_param)){
+                    throw std::runtime_error("algorithm 'splitting' requires a numeric parameter");
                 }
             }
-            else if (fields[0] == "RiskAnalysis")
+            else if (kind == "spilling")
             {
-                try
-                {
-                    int value = std::stoi(fields[1]);
-                    if (value < 0)
-                    {
-                        throw std::runtime_error("RiskAnalysis must be >= 0");
-                    }
-                    result.risk_analysis = value;
-                }
-                catch (const std::runtime_error &)
-                {
-                    throw;
-                }
-                catch (const std::exception &)
-                {
-                    throw std::runtime_error("RiskAnalysis must be an integer");
+                config.algorithm = AlgorithmKind::Spilling;
+                if (!(ss >> config.algorithm_param)){
+                    throw std::runtime_error("algorithm 'spilling' requires a numeric parameter");
                 }
             }
-            else if (fields[0] == "OutputFileName")
+            else if (kind == "free")
             {
-                std::string value_raw = trim(line.substr(line.find(',') + 1));
-                if (!isQuotedString(value_raw))
-                {
-                    throw std::runtime_error("OutputFileName must be a quoted string, e.g. \"assign.csv\"");
-                }
-                result.output_file_name = stripQuotes(fields[1]);
+                config.algorithm = AlgorithmKind::Free;
+                config.algorithm_param = 0;
             }
+            else
+            {
+                throw std::runtime_error("Unknown algorithm: '" + kind + "'. Expected: basic, splitting, spilling, free");
+            }
+        }
+        else
+        {
         }
     }
-    return result;
+    return config;
+}
+
+Config parseInputFiles(const std::string &ranges_path,
+                       const std::string &config_path,
+                       std::vector<LiveRange> &live_ranges)
+{
+    parseLiveRangesFile(ranges_path, live_ranges);
+    return parseConfigFile(config_path);
 }
