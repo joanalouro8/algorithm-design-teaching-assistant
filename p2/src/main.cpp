@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "parser.h"
-#include "algorithm.cpp"
+#include "algorithm.h"
 
 int main(int argc, char *argv[])
 {

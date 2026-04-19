@@ -1,0 +1,10 @@
+# Total number of webs followed by the listing of the program points of each one
+# program points in each web are sorted in ascending order
+webs: 4
+web0: 7+,8,9,10-
+web1: 1+,2,3,4,5,6-
+web2: 9+,10,11,12-,20+
+web3: 12+,13,14-
+# Free register allocation (placeholder)
+# registers: 3
+# live ranges: 5

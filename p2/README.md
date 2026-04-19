@@ -36,11 +36,10 @@ mkdir -p build && cd build && cmake .. && cmake --build . && cd ..
 
 ### Run a single dataset
 ```bash
-./myProg -b sample.csv sample_risk.csv
+ ./myProg -b ranges/ranges.txt registers/registers.txt output/allocation.txt
 ```
 **Where:**
-- `sample.csv` — input dataset
-- `sample_risk.csv` — risk analysis output file (if enabled)
+...
 
 ### Run all datasets
 ```bash

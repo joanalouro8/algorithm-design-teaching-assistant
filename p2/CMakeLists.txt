@@ -8,4 +8,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_executable(myProg
     src/main.cpp
     src/parser.cpp
+    src/algorithm.cpp
+    src/web.cpp
 )

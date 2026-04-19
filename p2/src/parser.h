@@ -7,6 +7,27 @@ struct RangePoint
     int instruction;
     bool def;  // marked with '+'
     bool last; // marked with '-'
+
+    bool operator<(const RangePoint &other) const
+    {
+        if (instruction != other.instruction){
+            return instruction < other.instruction;
+        }
+            
+        auto rank = [](const RangePoint &p) -> int
+        {
+            if (p.last){
+                return 0;
+            }
+            if (p.def){
+                return 2;
+            }
+            return 1;     
+        };
+
+        return rank(*this) < rank(other);
+    }
+
 };
 
 struct LiveRange
