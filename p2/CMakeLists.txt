@@ -10,4 +10,5 @@ add_executable(myProg
     src/parser.cpp
     src/algorithm.cpp
     src/web.cpp
+    src/interference.cpp
 )

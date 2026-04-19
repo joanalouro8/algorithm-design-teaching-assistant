@@ -5,6 +5,8 @@ web0: 7+,8,9,10-
 web1: 1+,2,3,4,5,6-
 web2: 9+,10,11,12-,20+
 web3: 12+,13,14-
-# Free register allocation (placeholder)
-# registers: 3
-# live ranges: 5
+registers: 2
+r0: web3
+r0: web2
+r0: web1
+r1: web0

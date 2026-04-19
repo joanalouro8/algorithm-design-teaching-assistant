@@ -50,6 +50,7 @@ public:
     void setDisabled(bool disabled);
     bool isDisabled() const;
     int getDegree() const;
+    int assign_color();
 
 protected:
     T info;                // info node
@@ -69,6 +70,8 @@ protected:
     std::vector<Edge<T> *> incoming; // incoming edges
 
     void deleteEdge(Edge<T> *edge);
+    // new field for register allocation
+    int color = -1;
 };
 
 /********************** Edge  ****************************/
@@ -340,6 +343,23 @@ int Vertex<T>::getDegree() const
         }
     }
     return counter;
+}
+
+template <class T>
+int Vertex<T>::assign_color()
+{
+    std::set<int> used_colors;
+    for (auto edge : adj) {
+        if (edge->getDest()->color != -1) {
+            used_colors.insert(edge->getDest()->color);
+        }
+    }
+    int color = 0;
+    while (used_colors.find(color) != used_colors.end()) {
+        color++;
+    }
+    this->color = color;
+    return color;
 }
 
 /********************** Edge  ****************************/
