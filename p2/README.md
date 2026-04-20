@@ -97,15 +97,27 @@ The project does not implement mode 0.
 ---
 
 ## Datasets
+For the Basic algorithm:
 | Range          | Registers         | Ideal allocation |
 | -------------- | ----------------- | ---------------- |
 | `ranges1.txt`  | `registers2.txt`  | 2 registers      | 
-| `ranges2.txt`  | `registers5.txt`  | 5 registers      | 
+| `ranges2.txt`  | `registers1.txt`  | 1 register       | 
 | `ranges3.txt`  | `registers3.txt`  | 3 registers      | 
 | `ranges4.txt`  | `registers1.txt`  | 1 register       | 
 | `ranges5.txt`  | `registers3.txt`  | 3 registers      | 
 | `ranges6.txt`  | `registers1.txt`  | 1 register       | 
 | `ranges7.txt`  | `registers3.txt`  | 3 registers      | 
-| `ranges8.txt`  | `registers1.txt`  | 1 register       | 
+
+
+For the Free algorithm:
+| Range          | Registers         | Ideal allocation |
+| -------------- | ----------------- | ---------------- |
+| `ranges1.txt`  | `registers5.txt`  | 2 registers      | 
+| `ranges2.txt`  | `registers4.txt`  | 1 register       | 
+| `ranges3.txt`  | `registers6.txt`  | 3 registers      | 
+| `ranges4.txt`  | `registers4.txt`  | 1 register       | 
+| `ranges5.txt`  | `registers6.txt`  | 3 registers      | 
+| `ranges6.txt`  | `registers4.txt`  | 1 register       | 
+| `ranges7.txt`  | `registers6.txt`  | 3 registers      | 
 
 

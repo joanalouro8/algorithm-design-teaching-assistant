@@ -1,4 +1,2 @@
-# comment line
-registers: 4
-# algorithm variants: basic, splitting and spilling each with a numeric parameter
-algorithm: basic
+registers: 1
+algorithm: free
