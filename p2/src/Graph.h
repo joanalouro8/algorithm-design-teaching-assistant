@@ -324,6 +324,10 @@ void Vertex<T>::setDisabled(bool is_disabled)
         for (auto edge : adj) {
             edge->setDisabled(true);
         }
+        for (auto edge : incoming) {
+            edge->setDisabled(true);
+        }
+
     }
 }
 

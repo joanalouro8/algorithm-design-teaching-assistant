@@ -19,7 +19,7 @@ void make_webs(const std::vector<LiveRange> &live_ranges, std::vector<Web> &webs
 
         for (Web &web : webs)
         {
-            if (live_range_use == web.use)
+            if (live_range_use == web.use && live_range.name == web.name)
             {
                 add_live_range_to_web(web, live_range);
                 addded_to_web = true;
@@ -32,6 +32,7 @@ void make_webs(const std::vector<LiveRange> &live_ranges, std::vector<Web> &webs
             Web web;
             web.id = web_id;
             web.use = live_range_use;
+            web.name = live_range.name;
             add_live_range_to_web(web, live_range);
             webs.push_back(web);
             ++web_id;

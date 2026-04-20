@@ -7,6 +7,7 @@
 #include <stack>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include "Graph.h"
 #include "web.h"
 #include "interference.h"
@@ -23,9 +24,7 @@ void runSpilling(const std::vector<LiveRange> &live_ranges,
                  const Config &config,
                  std::ofstream &output_file);
 
-void runFree(const std::vector<LiveRange> &live_ranges,
-             const Config &config,
-             std::ofstream &output_file);
+void runFree(Graph<int> &g, int n, std::ofstream &output_file);
 
 void runAlgorithm(const std::vector<LiveRange> &live_ranges,
                   const Config &config,

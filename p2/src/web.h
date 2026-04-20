@@ -12,6 +12,7 @@ struct Web
 {
     int id;
     int use;
+    std::string name;
     std::set<RangePoint> points;
 };
 
