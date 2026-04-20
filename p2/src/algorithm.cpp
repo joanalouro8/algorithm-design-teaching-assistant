@@ -136,117 +136,6 @@ void runSpilling(const std::vector<LiveRange> &live_ranges,
     output_file << "# live ranges: " << live_ranges.size() << "\n";
 }
 
-void runFree(Graph<int> &g, int n, std::ofstream &output_file)
-{
-    std::vector<std::pair<int, int>> allocation; // (web_id, register_id)
-    std::stack<Vertex<int> *> s;
-
-    while (true)
-    {
-        std::vector<Vertex<int> *> vertices = g.getVertexSet();
-        std::sort(vertices.begin(), vertices.end(),
-                  [](Vertex<int> *a, Vertex<int> *b)
-                  {
-                      return a->getDegree() < b->getDegree();
-                  });
-
-        if (vertices.empty())
-            break;
-
-        bool active_vertex = false;
-        for (Vertex<int> *v : vertices)
-        {
-            if (!v->isDisabled())
-            {
-                active_vertex = true;
-                break;
-            }
-        }
-
-        if (!active_vertex)
-            break;
-
-        for (Vertex<int> *v : vertices)
-        {
-            if (!v->isDisabled())
-            {
-                if (v->getDegree() < n)
-                {
-                    s.push(v);
-                    v->setDisabled(true);
-                    std::sort(vertices.begin(), vertices.end(),
-                              [](Vertex<int> *a, Vertex<int> *b)
-                              {
-                                  return a->getDegree() < b->getDegree();
-                              });
-                }
-            }
-        }
-
-        bool all_disabled = true;
-        bool all_degree_big = true;
-
-        for (Vertex<int> *v : vertices)
-        {
-            if (!v->isDisabled())
-            {
-                all_disabled = false;
-                if (v->getDegree() < n)
-                {
-                    
-                    all_degree_big = false;
-                    break;
-                }
-            }
-        }
-
-        if (all_disabled)
-            break;
-        if (all_degree_big)
-        {
-            for (Vertex<int> *v : vertices)
-            {
-                if (!v->isDisabled())
-                {
-                    v->setDisabled(true);
-                    allocation.push_back({v->getInfo(), -1}); // spill
-                    break;
-                }
-            }
-        }
-    }
-
-    while (!s.empty())
-    {
-        Vertex<int> *v = s.top();
-        s.pop();
-        int color = v->assign_color();
-        allocation.push_back({v->getInfo(), color});
-    }
-
-    std::sort(allocation.begin(), allocation.end(),
-              [](const auto &a, const auto &b)
-              { return a.first < b.first; });
-
-    std::set<int> used_registers;
-    for (const auto &[web_id, reg] : allocation)
-        if (reg != -1)
-            used_registers.insert(reg);
-
-    output_file << "# Total number of registers used, followed by assignment to webs\n";
-    output_file << "registers: " << used_registers.size() << "\n";
-    for (const auto &[web_id, reg] : allocation)
-    {
-        if (reg == -1)
-            output_file << "M: web" << web_id << "\n";
-        else
-            output_file << "r" << reg << ": web" << web_id << "\n";
-    }
-    // output_file << "# Free register allocation (placeholder)\n";
-    // output_file << "# registers: " << config.num_registers << "\n";
-    // output_file << "# live ranges: " << live_ranges.size() << "\n";
-}
-
 void runAlgorithm(const std::vector<LiveRange> &live_ranges,
                   const Config &config,
                   const std::string &output_path)
@@ -290,7 +179,7 @@ void runAlgorithm(const std::vector<LiveRange> &live_ranges,
         runSpilling(live_ranges, config, output_file);
         break;
     case AlgorithmKind::Free:
-        runFree(g, n, output_file);
+        runBasic(g, n, output_file);
         break;
     default:
         std::cerr << "Unknown algorithm variant.\n";

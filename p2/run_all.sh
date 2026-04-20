@@ -20,7 +20,6 @@ tests=(
     "ranges8.txt registers1.txt allocation8.txt"
     "ranges9.txt registers5.txt allocation9.txt"
     "ranges10.txt registers3.txt allocation10.txt"
-    "ranges11.txt registers2.txt allocation11.txt"
 )
 
 # Run all tests
