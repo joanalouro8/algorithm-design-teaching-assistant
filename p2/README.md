@@ -101,12 +101,11 @@ The project does not implement mode 0.
 | -------------- | ----------------- | ---------------- |
 | `ranges1.txt`  | `registers2.txt`  | 2 registers      | 
 | `ranges2.txt`  | `registers5.txt`  | 5 registers      | 
-| `ranges3.txt`  | `registers4.txt`  | 4 registers      | 
+| `ranges3.txt`  | `registers3.txt`  | 3 registers      | 
 | `ranges4.txt`  | `registers1.txt`  | 1 register       | 
 | `ranges5.txt`  | `registers3.txt`  | 3 registers      | 
 | `ranges6.txt`  | `registers1.txt`  | 1 register       | 
 | `ranges7.txt`  | `registers3.txt`  | 3 registers      | 
 | `ranges8.txt`  | `registers1.txt`  | 1 register       | 
-| `ranges9.txt`  | `registers5.txt`  | 5 registers      | 
-| `ranges10.txt` | `registers3.txt`  | 3 registers      |
+
 
