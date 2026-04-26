@@ -33,6 +33,7 @@ struct RangePoint
 struct LiveRange
 {
     std::string name;
+    bool used =false;
     std::vector<RangePoint> points;
 };
 

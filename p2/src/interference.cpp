@@ -1,4 +1,5 @@
 #include "interference.h"
+#include "web.h"
 
 bool sameInstruction(const RangePoint &a, const RangePoint &b)
 {
@@ -31,6 +32,18 @@ bool has_interference(const Web &web1, const Web &web2)
         else
         {
             ++it_web2;
+        }
+    }
+    return false;
+}
+
+bool is_same_web(const Web &web, const LiveRange &live_range)
+{
+    for(auto value_lr : live_range.points){
+        for(auto value_web : web.points){
+            if(sameInstruction(value_lr, value_web)){
+                return true;
+            }
         }
     }
     return false;

@@ -12,8 +12,8 @@
 #include "web.h"
 #include "interference.h"
 
-std::vector<std::pair<int, int>> greedyGraphColoringAlgorithm(Graph<int> &g, int n);
+std::vector<std::pair<int, int>> greedy_graph_coloring_algorithm(Graph<int> &g, int n);
 
-void runAlgorithm(const std::vector<LiveRange> &live_ranges,
+void run_algorithm(std::vector<LiveRange> &live_ranges,
                   const Config &config,
                   const std::string &output_path);

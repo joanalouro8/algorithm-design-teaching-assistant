@@ -1,6 +1,6 @@
 #include "algorithm.h"
 
-std::vector<std::pair<int, int>> greedyGraphColoringAlgorithm(Graph<int> &g,
+std::vector<std::pair<int, int>> greedy_graph_coloring_algorithm(Graph<int> &g,
                                                               int n)
 {
     std::vector<std::pair<int, int>> allocation; // (web_id, register_id)
@@ -82,9 +82,9 @@ std::vector<std::pair<int, int>> greedyGraphColoringAlgorithm(Graph<int> &g,
     return allocation;
 }
 
-void runBasic(Graph<int> &g, int n, std::ofstream &output_file)
+void run_basic(Graph<int> &g, int n, std::ofstream &output_file)
 {
-    auto allocation = greedyGraphColoringAlgorithm(g, n);
+    auto allocation = greedy_graph_coloring_algorithm(g, n);
 
     std::sort(allocation.begin(), allocation.end(),
               [](const auto &a, const auto &b)
@@ -106,7 +106,7 @@ void runBasic(Graph<int> &g, int n, std::ofstream &output_file)
     }
 }
 
-void runSplitting(const std::vector<LiveRange> &live_ranges,
+void run_splitting(const std::vector<LiveRange> &live_ranges,
                   const Config &config,
                   std::ofstream &output_file)
 {
@@ -121,7 +121,7 @@ void runSplitting(const std::vector<LiveRange> &live_ranges,
     output_file << "# live ranges: " << live_ranges.size() << "\n";
 }
 
-void runSpilling(const std::vector<LiveRange> &live_ranges,
+void run_spilling(const std::vector<LiveRange> &live_ranges,
                  const Config &config,
                  std::ofstream &output_file)
 {
@@ -136,7 +136,7 @@ void runSpilling(const std::vector<LiveRange> &live_ranges,
     output_file << "# live ranges: " << live_ranges.size() << "\n";
 }
 
-void runAlgorithm(const std::vector<LiveRange> &live_ranges,
+void run_algorithm(std::vector<LiveRange> &live_ranges,
                   const Config &config,
                   const std::string &output_path)
 {
@@ -170,16 +170,16 @@ void runAlgorithm(const std::vector<LiveRange> &live_ranges,
     switch (config.algorithm)
     {
     case AlgorithmKind::Basic:
-        runBasic(g, n, output_file);
+        run_basic(g, n, output_file);
         break;
     case AlgorithmKind::Splitting:
-        runSplitting(live_ranges, config, output_file);
+        run_splitting(live_ranges, config, output_file);
         break;
     case AlgorithmKind::Spilling:
-        runSpilling(live_ranges, config, output_file);
+        run_spilling(live_ranges, config, output_file);
         break;
     case AlgorithmKind::Free:
-        runBasic(g, n, output_file);
+        run_basic(g, n, output_file);
         break;
     default:
         std::cerr << "Unknown algorithm variant.\n";

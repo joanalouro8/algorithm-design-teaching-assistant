@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    runAlgorithm(live_ranges, config, output_path);
+    run_algorithm(live_ranges, config, output_path);
 
     return 0;
 }

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/myProg.dir/src/main.cpp.o CMakeFiles/myProg.dir/src/parser.cpp.o CMakeFiles/myProg.dir/src/algorithm.cpp.o CMakeFiles/myProg.dir/src/web.cpp.o CMakeFiles/myProg.dir/src/interference.cpp.o -o /home/joana/Documents/da/DA---Monitoria/p2/myProg 
