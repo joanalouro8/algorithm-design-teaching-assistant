@@ -101,23 +101,37 @@ For the Basic algorithm:
 | Range          | Registers         | Ideal allocation |
 | -------------- | ----------------- | ---------------- |
 | `ranges1.txt`  | `registers2.txt`  | 2 registers      | 
-| `ranges2.txt`  | `registers1.txt`  | 1 register       | 
-| `ranges3.txt`  | `registers3.txt`  | 3 registers      | 
+| `ranges2.txt`  | `registers2.txt`  | 2 registers      | 
+| `ranges3.txt`  | `registers2.txt`  | 2 registers      | 
 | `ranges4.txt`  | `registers1.txt`  | 1 register       | 
-| `ranges5.txt`  | `registers3.txt`  | 3 registers      | 
-| `ranges6.txt`  | `registers1.txt`  | 1 register       | 
-| `ranges7.txt`  | `registers3.txt`  | 3 registers      | 
+| `ranges5.txt`  | `registers1.txt`  | 1 register       | 
+| `ranges6.txt`  | `registers3.txt`  | 3 registers      |  
 
+For the spilling algorithm:
+| Range          | Registers         | Registers allowed | Spilling         | 
+| -------------- | ----------------- | ----------------  | ---------------- |
+| `ranges7.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
+| `ranges8.txt`  | `registers8.txt`  | 3 registers       | 2 spills |
+| `ranges9.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
+| `ranges10.txt`  | `registers9.txt`  | 2 registers       | 2 spills* |
+| `ranges11.txt`  | `registers10.txt`  | 2 registers       | 2 spills* |
+ 
+For the splitting algorithm:
+| Range          | Registers         | Registers allowed | Spilling         | 
+| -------------- | ----------------- | ----------------  | ---------------- |
+| `ranges7.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
+| `ranges8.txt`  | `registers8.txt`  | 3 registers       | 2 spills |
+| `ranges9.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
+| `ranges10.txt`  | `registers9.txt`  | 2 registers       | 2 spills* |
+| `ranges11.txt`  | `registers10.txt`  | 2 registers       | 2 spills* |
 
-For the Free algorithm:
+For the free algorithm:
 | Range          | Registers         | Ideal allocation |
 | -------------- | ----------------- | ---------------- |
 | `ranges1.txt`  | `registers5.txt`  | 2 registers      | 
-| `ranges2.txt`  | `registers4.txt`  | 1 register       | 
-| `ranges3.txt`  | `registers6.txt`  | 3 registers      | 
+| `ranges2.txt`  | `registers5.txt`  | 2 registers      | 
+| `ranges3.txt`  | `registers5.txt`  | 2 registers      | 
 | `ranges4.txt`  | `registers4.txt`  | 1 register       | 
-| `ranges5.txt`  | `registers6.txt`  | 3 registers      | 
-| `ranges6.txt`  | `registers4.txt`  | 1 register       | 
-| `ranges7.txt`  | `registers6.txt`  | 3 registers      | 
-
+| `ranges5.txt`  | `registers4.txt`  | 1 register       | 
+| `ranges6.txt`  | `registers6.txt`  | 3 registers      |  
 

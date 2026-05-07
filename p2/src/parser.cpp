@@ -122,14 +122,14 @@ static Config parseConfigFile(const std::string &path)
                 config.algorithm = AlgorithmKind::Basic;
                 config.algorithm_param = 0;
             }
-            else if (kind == "splitting")
+            else if (kind == "splitting,")
             {
                 config.algorithm = AlgorithmKind::Splitting;
                 if (!(ss >> config.algorithm_param)){
                     throw std::runtime_error("algorithm 'splitting' requires a numeric parameter");
                 }
             }
-            else if (kind == "spilling")
+            else if (kind == "spilling,")
             {
                 config.algorithm = AlgorithmKind::Spilling;
                 if (!(ss >> config.algorithm_param)){

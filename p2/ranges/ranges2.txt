@@ -1,4 +1,6 @@
-t1: 1+,2-
-t2: 2+,3-
-t3: 3+,4-
-t4: 4+,5-
+#this line is just a comment to be ignored
+y: 7+,8,9,10-
+x: 1+,2,3,4,7
+x: 7,8
+x: 8,9-
+x: 8,11,12,13-

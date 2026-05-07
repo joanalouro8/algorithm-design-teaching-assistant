@@ -82,6 +82,94 @@ std::vector<std::pair<int, int>> greedy_graph_coloring_algorithm(Graph<int> &g,
     return allocation;
 }
 
+std::vector<std::pair<int, int>> spilling_graph_coloring(Graph<int> &g,
+                                                                 int n, int spill_threshold)
+{
+    std::vector<std::pair<int, int>> allocation; // (web_id, register_id)
+    std::stack<Vertex<int> *> s;
+
+    // 1. Clearing cliques
+    while (true)
+    {
+        std::vector<Vertex<int> *> vertices = g.getVertexSet();
+        if (vertices.empty())
+            break;
+
+        bool active_vertex = false;
+        for (Vertex<int> *v : vertices)
+        {
+            if (!v->isDisabled())
+            {
+                active_vertex = true;
+                break;
+            }
+        }
+
+        if (!active_vertex)
+            break;
+
+        for (Vertex<int> *v : vertices)
+        {
+            if (!v->isDisabled())
+            {
+                if (v->getDegree() < n)
+                {
+                    s.push(v);
+                    v->setDisabled(true);
+                }
+            }
+        }
+
+        bool all_disabled = true;
+        bool all_degree_big = true;
+
+        for (Vertex<int> *v : vertices)
+        {
+            if (!v->isDisabled())
+            {
+                all_disabled = false;
+                if (v->getDegree() < n)
+                {
+                    all_degree_big = false;
+                    break;
+                }
+            }
+        }
+
+        if (all_disabled)
+            break;
+        if (all_degree_big)
+        {
+            Vertex<int> *highest = nullptr;
+            int max_degree = -1;
+            for (Vertex<int> *v : vertices)
+            {
+                if (!v->isDisabled() && v->getDegree() > max_degree)
+                {
+                    max_degree = v->getDegree();
+                    highest = v;
+                }
+            }
+            if (highest)
+            {
+                highest->setDisabled(true);
+                allocation.push_back({highest->getInfo(), -1}); // spill
+            }
+        }
+    }
+
+    // 2. Coloring phase
+    while (!s.empty())
+    {
+        Vertex<int> *v = s.top();
+        s.pop();
+        int color = v->assign_color();
+        allocation.push_back({v->getInfo(), color});
+    }
+
+    return allocation;
+}
+
 void run_basic(Graph<int> &g, int n, std::ofstream &output_file)
 {
     auto allocation = greedy_graph_coloring_algorithm(g, n);
@@ -106,34 +194,37 @@ void run_basic(Graph<int> &g, int n, std::ofstream &output_file)
     }
 }
 
-void run_splitting(const std::vector<LiveRange> &live_ranges,
-                  const Config &config,
-                  std::ofstream &output_file)
+void run_spilling(Graph<int> &g, int n, std::ofstream &output_file, int spill_threshold)
 {
-    // std::cout << "[algorithm] splitting  |  registers=" << config.num_registers
-    //           << "  param=" << config.algorithm_param << "\n";
-    // printLiveRanges(live_ranges);
+    auto allocation = spilling_graph_coloring(g, n, spill_threshold);
 
-    // TODO: implement splitting register allocation
-    output_file << "# Splitting register allocation (placeholder)\n";
-    output_file << "# registers: " << config.num_registers << "\n";
-    output_file << "# param: " << config.algorithm_param << "\n";
-    output_file << "# live ranges: " << live_ranges.size() << "\n";
-}
+    std::sort(allocation.begin(), allocation.end(),
+              [](const auto &a, const auto &b)
+              { return a.first < b.first; });
 
-void run_spilling(const std::vector<LiveRange> &live_ranges,
-                 const Config &config,
-                 std::ofstream &output_file)
-{
-    // std::cout << "[algorithm] spilling  |  registers=" << config.num_registers
-    //           << "  param=" << config.algorithm_param << "\n";
-    // printLiveRanges(live_ranges);
+    std::set<int> used_registers;
+    int spill_count = 0;
+    for (const auto &[web_id, reg] : allocation)
+    {
+        if (reg != -1)
+            used_registers.insert(reg);
+        else
+            spill_count++;
+    }
 
-    // TODO: implement spilling register allocation
-    output_file << "# Spilling register allocation (placeholder)\n";
-    output_file << "# registers: " << config.num_registers << "\n";
-    output_file << "# param: " << config.algorithm_param << "\n";
-    output_file << "# live ranges: " << live_ranges.size() << "\n";
+    output_file << "# Total number of registers used, followed by assignment to webs\n";
+    output_file << "registers: " << used_registers.size() << "\n";
+
+    if (spill_count <= spill_threshold)
+        output_file << "spills: " << spill_count << "\n";
+
+    for (const auto &[web_id, reg] : allocation)
+    {
+        if (reg == -1)
+            output_file << "S: web" << web_id << "\n";
+        else
+            output_file << "r" << reg << ": web" << web_id << "\n";
+    }
 }
 
 void run_algorithm(std::vector<LiveRange> &live_ranges,
@@ -173,12 +264,14 @@ void run_algorithm(std::vector<LiveRange> &live_ranges,
         run_basic(g, n, output_file);
         break;
     case AlgorithmKind::Splitting:
-        run_splitting(live_ranges, config, output_file);
+        std::cout << "Splitting algorithm not implemented. Running basic algorithm instead.\n";
+        run_basic(g, n, output_file);
         break;
     case AlgorithmKind::Spilling:
-        run_spilling(live_ranges, config, output_file);
+        run_spilling(g, n, output_file, config.algorithm_param);
         break;
     case AlgorithmKind::Free:
+        std::cout << "Free algorithm not implemented. Running basic algorithm.\n";
         run_basic(g, n, output_file);
         break;
     default:
