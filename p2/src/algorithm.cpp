@@ -271,7 +271,7 @@ void run_algorithm(std::vector<LiveRange> &live_ranges,
         run_spilling(g, n, output_file, config.algorithm_param);
         break;
     case AlgorithmKind::Free:
-        std::cout << "Free algorithm not implemented. Running basic algorithm.\n";
+        std::cout << "Free algorithm not implemented. Running basic algorithm instead.\n";
         run_basic(g, n, output_file);
         break;
     default:

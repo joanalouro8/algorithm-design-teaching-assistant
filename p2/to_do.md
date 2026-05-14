@@ -1,4 +1,0 @@
-- remake datasets (ver o caos do peter e pensar em mais!)
-- spilling
-- splitting
-- correção automatica

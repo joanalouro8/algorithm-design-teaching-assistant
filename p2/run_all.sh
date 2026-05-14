@@ -16,7 +16,14 @@ tests=(
     "ranges4.txt registers1.txt allocation4.txt"
     "ranges5.txt registers1.txt allocation5.txt"
     "ranges6.txt registers3.txt allocation6.txt"
-    
+    "ranges7.txt registers7.txt allocation7.txt"
+    "ranges8.txt registers8.txt allocation8.txt"
+    "ranges9.txt registers7.txt allocation9.txt"
+    "ranges10.txt registers9.txt allocation10.txt"
+    "ranges11.txt registers10.txt allocation11.txt"
+    "ranges12.txt registers10.txt allocation12.txt"
+    "ranges13.txt registers10.txt allocation13.txt"
+    "ranges14.txt registers11.txt allocation14.txt" 
 )
 
 # Run all tests

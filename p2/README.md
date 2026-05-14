@@ -108,22 +108,22 @@ For the Basic algorithm:
 | `ranges6.txt`  | `registers3.txt`  | 3 registers      |  
 
 For the spilling algorithm:
-| Range          | Registers         | Registers allowed | Spilling         | 
-| -------------- | ----------------- | ----------------  | ---------------- |
-| `ranges7.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
-| `ranges8.txt`  | `registers8.txt`  | 3 registers       | 2 spills |
-| `ranges9.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
-| `ranges10.txt`  | `registers9.txt`  | 2 registers       | 2 spills* |
-| `ranges11.txt`  | `registers10.txt`  | 2 registers       | 2 spills* |
- 
+| Range File     | Register File     | Registers Allowed | Expected Spills |
+| -------------- | ----------------- | ----------------- | --------------- |
+| `ranges7.txt`  | `registers7.txt`  | 2 registers       | 1 spill         |
+| `ranges8.txt`  | `registers8.txt`  | 3 registers       | 2 spills        |
+| `ranges9.txt`  | `registers7.txt`  | 2 registers       | 1 spill         |
+| `ranges10.txt` | `registers9.txt`  | 2 registers       | 2 spills*       |
+| `ranges11.txt` | `registers10.txt` | 2 registers       | 2 spills*       |
+
+* The number of spills shown is the ideal result. Depending on the algorithm you may need more spills.
+
 For the splitting algorithm:
-| Range          | Registers         | Registers allowed | Spilling         | 
-| -------------- | ----------------- | ----------------  | ---------------- |
-| `ranges7.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
-| `ranges8.txt`  | `registers8.txt`  | 3 registers       | 2 spills |
-| `ranges9.txt`  | `registers7.txt`  | 2 registers       | 1 spill |
-| `ranges10.txt`  | `registers9.txt`  | 2 registers       | 2 spills* |
-| `ranges11.txt`  | `registers10.txt`  | 2 registers       | 2 spills* |
+| Range           | Registers         | Registers allowed | Split        | 
+| --------------  | ----------------- | ----------------  | ---------------- |
+| `ranges12.txt`  | `registers10.txt`  | 2 registers       | 1 split |
+| `ranges13.txt`  | `registers10.txt`  | 2 registers       | 1 split |
+| `ranges14.txt`  | `registers11.txt`  | 3 registers       | 1 split |
 
 For the free algorithm:
 | Range          | Registers         | Ideal allocation |
