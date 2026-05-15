@@ -129,12 +129,74 @@ myProg/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/build
 .PHONY : myProg/fast
 
+#=============================================================================
+# Target rules for targets named myCorrection
+
+# Build rule for target.
+myCorrection: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 myCorrection
+.PHONY : myCorrection
+
+# fast build rule for target.
+myCorrection/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/build
+.PHONY : myCorrection/fast
+
+correction/main.o: correction/main.cpp.o
+.PHONY : correction/main.o
+
+# target to build an object file
+correction/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/correction/main.cpp.o
+.PHONY : correction/main.cpp.o
+
+correction/main.i: correction/main.cpp.i
+.PHONY : correction/main.i
+
+# target to preprocess a source file
+correction/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/correction/main.cpp.i
+.PHONY : correction/main.cpp.i
+
+correction/main.s: correction/main.cpp.s
+.PHONY : correction/main.s
+
+# target to generate assembly for a file
+correction/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/correction/main.cpp.s
+.PHONY : correction/main.cpp.s
+
+correction/validator.o: correction/validator.cpp.o
+.PHONY : correction/validator.o
+
+# target to build an object file
+correction/validator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/correction/validator.cpp.o
+.PHONY : correction/validator.cpp.o
+
+correction/validator.i: correction/validator.cpp.i
+.PHONY : correction/validator.i
+
+# target to preprocess a source file
+correction/validator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/correction/validator.cpp.i
+.PHONY : correction/validator.cpp.i
+
+correction/validator.s: correction/validator.cpp.s
+.PHONY : correction/validator.s
+
+# target to generate assembly for a file
+correction/validator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/correction/validator.cpp.s
+.PHONY : correction/validator.cpp.s
+
 src/algorithm.o: src/algorithm.cpp.o
 .PHONY : src/algorithm.o
 
 # target to build an object file
 src/algorithm.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/algorithm.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/algorithm.cpp.o
 .PHONY : src/algorithm.cpp.o
 
 src/algorithm.i: src/algorithm.cpp.i
@@ -143,6 +205,7 @@ src/algorithm.i: src/algorithm.cpp.i
 # target to preprocess a source file
 src/algorithm.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/algorithm.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/algorithm.cpp.i
 .PHONY : src/algorithm.cpp.i
 
 src/algorithm.s: src/algorithm.cpp.s
@@ -151,6 +214,7 @@ src/algorithm.s: src/algorithm.cpp.s
 # target to generate assembly for a file
 src/algorithm.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/algorithm.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/algorithm.cpp.s
 .PHONY : src/algorithm.cpp.s
 
 src/interference.o: src/interference.cpp.o
@@ -159,6 +223,7 @@ src/interference.o: src/interference.cpp.o
 # target to build an object file
 src/interference.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/interference.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/interference.cpp.o
 .PHONY : src/interference.cpp.o
 
 src/interference.i: src/interference.cpp.i
@@ -167,6 +232,7 @@ src/interference.i: src/interference.cpp.i
 # target to preprocess a source file
 src/interference.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/interference.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/interference.cpp.i
 .PHONY : src/interference.cpp.i
 
 src/interference.s: src/interference.cpp.s
@@ -175,6 +241,7 @@ src/interference.s: src/interference.cpp.s
 # target to generate assembly for a file
 src/interference.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/interference.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/interference.cpp.s
 .PHONY : src/interference.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -207,6 +274,7 @@ src/parser.o: src/parser.cpp.o
 # target to build an object file
 src/parser.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/parser.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/parser.cpp.o
 .PHONY : src/parser.cpp.o
 
 src/parser.i: src/parser.cpp.i
@@ -215,6 +283,7 @@ src/parser.i: src/parser.cpp.i
 # target to preprocess a source file
 src/parser.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/parser.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/parser.cpp.i
 .PHONY : src/parser.cpp.i
 
 src/parser.s: src/parser.cpp.s
@@ -223,6 +292,7 @@ src/parser.s: src/parser.cpp.s
 # target to generate assembly for a file
 src/parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/parser.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/parser.cpp.s
 .PHONY : src/parser.cpp.s
 
 src/web.o: src/web.cpp.o
@@ -231,6 +301,7 @@ src/web.o: src/web.cpp.o
 # target to build an object file
 src/web.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/web.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/web.cpp.o
 .PHONY : src/web.cpp.o
 
 src/web.i: src/web.cpp.i
@@ -239,6 +310,7 @@ src/web.i: src/web.cpp.i
 # target to preprocess a source file
 src/web.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/web.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/web.cpp.i
 .PHONY : src/web.cpp.i
 
 src/web.s: src/web.cpp.s
@@ -247,6 +319,7 @@ src/web.s: src/web.cpp.s
 # target to generate assembly for a file
 src/web.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/src/web.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/src/web.cpp.s
 .PHONY : src/web.cpp.s
 
 # Help Target
@@ -257,7 +330,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... myCorrection"
 	@echo "... myProg"
+	@echo "... correction/main.o"
+	@echo "... correction/main.i"
+	@echo "... correction/main.s"
+	@echo "... correction/validator.o"
+	@echo "... correction/validator.i"
+	@echo "... correction/validator.s"
 	@echo "... src/algorithm.o"
 	@echo "... src/algorithm.i"
 	@echo "... src/algorithm.s"

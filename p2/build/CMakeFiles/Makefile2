@@ -64,6 +64,7 @@ CMAKE_BINARY_DIR = /home/joana/Documents/da/DA---Monitoria/p2/build
 
 # The main recursive "all" target.
 all: CMakeFiles/myProg.dir/all
+all: CMakeFiles/myCorrection.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -72,6 +73,7 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/myProg.dir/clean
+clean: CMakeFiles/myCorrection.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -81,7 +83,7 @@ clean: CMakeFiles/myProg.dir/clean
 CMakeFiles/myProg.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/joana/Documents/da/DA---Monitoria/p2/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target myProg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/joana/Documents/da/DA---Monitoria/p2/build/CMakeFiles --progress-num=8,9,10,11,12,13 "Built target myProg"
 .PHONY : CMakeFiles/myProg.dir/all
 
 # Build rule for subdir invocation for target.
@@ -99,6 +101,32 @@ myProg: CMakeFiles/myProg.dir/rule
 CMakeFiles/myProg.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/myProg.dir/build.make CMakeFiles/myProg.dir/clean
 .PHONY : CMakeFiles/myProg.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/myCorrection.dir
+
+# All Build rule for target.
+CMakeFiles/myCorrection.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/joana/Documents/da/DA---Monitoria/p2/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target myCorrection"
+.PHONY : CMakeFiles/myCorrection.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/myCorrection.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/joana/Documents/da/DA---Monitoria/p2/build/CMakeFiles 7
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/myCorrection.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/joana/Documents/da/DA---Monitoria/p2/build/CMakeFiles 0
+.PHONY : CMakeFiles/myCorrection.dir/rule
+
+# Convenience name for target.
+myCorrection: CMakeFiles/myCorrection.dir/rule
+.PHONY : myCorrection
+
+# clean rule for target.
+CMakeFiles/myCorrection.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/myCorrection.dir/build.make CMakeFiles/myCorrection.dir/clean
+.PHONY : CMakeFiles/myCorrection.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

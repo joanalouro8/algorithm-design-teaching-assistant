@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/myCorrection.dir/correction/main.cpp.o CMakeFiles/myCorrection.dir/correction/validator.cpp.o CMakeFiles/myCorrection.dir/src/parser.cpp.o CMakeFiles/myCorrection.dir/src/algorithm.cpp.o CMakeFiles/myCorrection.dir/src/web.cpp.o CMakeFiles/myCorrection.dir/src/interference.cpp.o -o /home/joana/Documents/da/DA---Monitoria/p2/myCorrection 

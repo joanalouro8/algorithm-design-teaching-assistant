@@ -36,7 +36,8 @@ mkdir -p build && cd build && cmake .. && cmake --build . && cd ..
 
 ### Run a single dataset
 ```bash
- ./myProg -b ranges/ranges1.txt registers/registers1.txt output/allocation.txt
+./myProg -b ranges/ranges1.txt registers/registers1.txt output/allocation.txt
+./myCorrection -c ranges/ranges1.txt registers/registers1.txt output/allocation.txt
 ```
 **Where:**
 ...

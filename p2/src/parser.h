@@ -8,6 +8,12 @@ struct RangePoint
     bool def;  // marked with '+'
     bool last; // marked with '-'
 
+    bool operator==(const RangePoint &other) const
+    {
+        return instruction == other.instruction && def == other.def && last == other.last;
+    }
+
+
     bool operator<(const RangePoint &other) const
     {
         if (instruction != other.instruction){
