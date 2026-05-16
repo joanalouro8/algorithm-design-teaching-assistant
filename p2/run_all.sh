@@ -1,42 +1,26 @@
 #!/bin/bash
 
-# Build
 mkdir -p build && cd build && cmake .. && cmake --build . && cd ..
 
-# Output folder
 mkdir -p output
 
-echo "Running register allocation tests..."
+for ranges_path in ranges/ranges*.txt; do
+    filename=$(basename "$ranges_path")
 
-# Array of (range, register, output)
-tests=(
-    "ranges1.txt registers2.txt allocation1.txt"
-    "ranges2.txt registers2.txt allocation2.txt"
-    "ranges3.txt registers2.txt allocation3.txt"
-    "ranges4.txt registers1.txt allocation4.txt"
-    "ranges5.txt registers1.txt allocation5.txt"
-    "ranges6.txt registers3.txt allocation6.txt"
-    "ranges7.txt registers7.txt allocation7.txt"
-    "ranges8.txt registers8.txt allocation8.txt"
-    "ranges9.txt registers7.txt allocation9.txt"
-    "ranges10.txt registers9.txt allocation10.txt"
-    "ranges11.txt registers10.txt allocation11.txt"
-    "ranges12.txt registers10.txt allocation12.txt"
-    "ranges13.txt registers10.txt allocation13.txt"
-    "ranges14.txt registers11.txt allocation14.txt" 
-)
+    index="${filename//[^0-9]/}"
 
-# Run all tests
-for test in "${tests[@]}"; do
-    set -- $test
+    registers_path="registers/registers${index}.txt"
+    output_path="output/allocation${index}.txt"
 
-    range_file=$1
-    register_file=$2
-    output_file=$3
+    if [ ! -f "$registers_path" ]; then
+        echo "  [SKIP] Missing registers file:"
+        echo "         $registers_path"
+        continue
+    fi
 
-    echo "Running $range_file with $register_file..."
+    ./myProg -b \
+        "$ranges_path" \
+        "$registers_path" \
+        "$output_path"
 
-    ./myProg -b "ranges/$range_file" "registers/$register_file" "output/$output_file"
 done
-
-echo "All tests completed."

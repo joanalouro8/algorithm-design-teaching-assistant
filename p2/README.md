@@ -1,138 +1,211 @@
-# DA - First Project
+# Register Allocator and Corrector
 
-Implementation of the first **DA** project by **Joana Louro**.
-
-This project implements a **scientific conference review assignment tool** using a **maximum flow approach (Ford–Fulkerson)**. The program reads datasets describing submissions, reviewers, and parameters, and generates reviewer assignments while respecting the given constraints.
-
-The program is designed to run **via command line or batch scripts**.
+A register allocation tool implementing **web-based** interference graph coloring, with a companion correction tool.
 
 ---
 
-## Project Structure
+## Overview
 
-```
-.
-├── input/               # Input CSV datasets
-├── output/              # Generated output files (auto-generated)
-├── risk/                # Generated risk files (auto-generated)
-├── build/               # CMake build directory (auto-generated)
-├── src/
-│   ├── main.cpp
-│   ├── algorithm.cpp    # Ford-Fulkerson, graph building, output logic
-│   ├── parser.cpp / .h  # Input file parsing
-│   └── Graph.h          # Given graph structure
-├── CMakeLists.txt
-└── run_all.sh           # Batch runner for all datasets
-```
+This project has two binaries:
+
+| Binary | Purpose |
+|---|---|
+| `myProg` | Runs register allocation on a set of live ranges |
+| `myCorrection` | Validates a student's allocation output against the correct answer |
+
+### Algorithms implemented
+
+- **Basic** — greedy graph coloring - spills when no color is available
+- **Spilling** — greedy graph coloring with a spill threshold - spills the highest-degree node when the graph cannot be colored
 
 ---
 
-## Build & Run
+## Build
 
-### Build
 ```bash
 mkdir -p build && cd build && cmake .. && cmake --build . && cd ..
 ```
 
-### Run a single dataset
+Both binaries are placed at the project root after building.
+
+---
+
+## Usage
+
+### Allocator
+
 ```bash
-./myProg -b ranges/ranges1.txt registers/registers1.txt output/allocation.txt
-./myCorrection -c ranges/ranges1.txt registers/registers1.txt output/allocation.txt
+./myProg -b <ranges.txt> <registers.txt> <output.txt>
 ```
-**Where:**
-...
 
-### Run all datasets
+| Argument | Description |
+|---|---|
+| `ranges.txt` | Live ranges for each variable |
+| `registers.txt` | Config file (number of registers, algorithm) |
+| `output.txt` | Where the allocation result is written |
+
+**Example:**
 ```bash
-chmod +x run_all.sh
-./run_all.sh
-```
-**The script will:**
-1. Build the project
-1. Execute the program for every *.csv file inside the input/ folder
-1. Save the results automatically
-
-Assignment outputs will be written to the location defined in `OutputFileName` inside each dataset.
-
-For organization, datasets should use:
-``` csv
-OutputFileName, "output/<dataset_name>_out.csv"
+./myProg -b ranges/ranges1.txt registers/registers1.txt output/allocation1.txt
 ```
 
-Risk analysis files will be written to:
-```
-risk/<dataset_name>.csv
-```
+---
 
-If risk analysis is enabled.
+### Corrector
 
-### Reusing the Datasets and Script
-
-This repository can also be used to test or validate other implementations.
-
-To do this:
-
-1. Copy the following items into the root folder of another project:
-
-```
-input/
-run_all.sh
+```bash
+./myCorrection -c <ranges.txt> <registers.txt> <allocation.txt>
 ```
 
-1. Add any additional datasets to the input/ folder if needed.
+| Argument | Description |
+|---|---|
+| `ranges.txt` | Same live ranges used by the student |
+| `registers.txt` | Config file (must use `algorithm: basic`) |
+| `allocation.txt` | The student's output file to validate |
 
-1. Ensure that each dataset contains an OutputFileName parameter pointing to the output directory:
-
+**Example:**
+```bash
+./myCorrection -c ranges/ranges1.txt registers/registers1.txt output/allocation1.txt
 ```
-OutputFileName, "output/<dataset_name>.csv"
+
+#### What the Corrector Validates
+
+The correction tool verifies:
+
+1. Correct web construction
+2. Valid register/spill assignments
+3. No interference conflicts
+4. Register usage within limits
+
+Example output:
+
+```text
+--------------------------------------------
+  Dataset 6
+--------------------------------------------
+  OK: webs are correct
+  OK: register assignment is correct
 ```
 
-This ensures that all results are stored in the output/ folder for easier comparison between implementations.
+> **Note:** The corrector currently supports only the `basic` algorithm.
 
-### Important Notes
-
-This implementation is designed to be executed via command line or batch scripts.
-There is no interactive interface.
-Because of this, the parameter `GenerateAssignments` is only supported for values 1 or 2.
-The project does not implement mode 0.
 ---
 
 ## Datasets
-For the Basic algorithm:
-| Range          | Registers         | Ideal allocation |
-| -------------- | ----------------- | ---------------- |
-| `ranges1.txt`  | `registers2.txt`  | 2 registers      | 
-| `ranges2.txt`  | `registers2.txt`  | 2 registers      | 
-| `ranges3.txt`  | `registers2.txt`  | 2 registers      | 
-| `ranges4.txt`  | `registers1.txt`  | 1 register       | 
-| `ranges5.txt`  | `registers1.txt`  | 1 register       | 
-| `ranges6.txt`  | `registers3.txt`  | 3 registers      |  
 
-For the spilling algorithm:
-| Range File     | Register File     | Registers Allowed | Expected Spills |
-| -------------- | ----------------- | ----------------- | --------------- |
-| `ranges7.txt`  | `registers7.txt`  | 2 registers       | 1 spill         |
-| `ranges8.txt`  | `registers8.txt`  | 3 registers       | 2 spills        |
-| `ranges9.txt`  | `registers7.txt`  | 2 registers       | 1 spill         |
-| `ranges10.txt` | `registers9.txt`  | 2 registers       | 2 spills*       |
-| `ranges11.txt` | `registers10.txt` | 2 registers       | 2 spills*       |
+| Ranges | Registers | Ideal registers |
+|---|---|---|
+| `ranges1.txt` | `registers2.txt` | 2 |
+| `ranges2.txt` | `registers2.txt` | 2 |
+| `ranges3.txt` | `registers2.txt` | 2 |
+| `ranges4.txt` | `registers1.txt` | 1 |
+| `ranges5.txt` | `registers1.txt` | 1 |
+| `ranges6.txt` | `registers3.txt` | 3 |
 
-* The number of spills shown is the ideal result. Depending on the algorithm you may need more spills.
+### Automation Scripts
 
-For the splitting algorithm:
-| Range           | Registers         | Registers allowed | Split        | 
-| --------------  | ----------------- | ----------------  | ---------------- |
-| `ranges12.txt`  | `registers10.txt`  | 2 registers       | 1 split |
-| `ranges13.txt`  | `registers10.txt`  | 2 registers       | 1 split |
-| `ranges14.txt`  | `registers11.txt`  | 3 registers       | 1 split |
+The project includes two helper scripts:
 
-For the free algorithm:
-| Range          | Registers         | Ideal allocation |
-| -------------- | ----------------- | ---------------- |
-| `ranges1.txt`  | `registers5.txt`  | 2 registers      | 
-| `ranges2.txt`  | `registers5.txt`  | 2 registers      | 
-| `ranges3.txt`  | `registers5.txt`  | 2 registers      | 
-| `ranges4.txt`  | `registers4.txt`  | 1 register       | 
-| `ranges5.txt`  | `registers4.txt`  | 1 register       | 
-| `ranges6.txt`  | `registers6.txt`  | 3 registers      |  
+| Script           | Purpose                             |
+| ---------------- | ----------------------------------- |
+| `run_all.sh`     | Runs the allocator for all datasets |
+| `correct_all.sh` | Validates all generated allocations |
 
+
+## Guide to Use the Project
+
+Run the allocator on all datasets:
+
+```bash
+./run_all.sh
+```
+
+This script:
+
+* Builds the project
+* Runs the student's allocator on every dataset
+* Generates allocation files in `output/`
+
+---
+
+## Guide to Use the Correction Tool
+
+This tool is designed to validate submissions for the register allocation project.
+
+Below is the recommended workflow.
+
+---
+
+### What You Receive from Students
+
+Each student should submit:
+
+* Their source code (compiled into `myProg`)
+* Optionally, their generated allocation files (`allocation*.txt`)
+
+If allocation files are not provided, they can be generated using:
+
+```bash
+./run_all.sh
+```
+
+---
+
+### Step-by-Step Validation Workflow
+
+#### 1. Build the Project
+
+```bash
+mkdir -p build && cd build && cmake .. && cmake --build . && cd ..
+```
+
+---
+
+#### 2. Prepare the Dataset Folders
+
+Make sure the following folders exist in the project root:
+
+```text
+ranges/
+registers/
+output/
+```
+
+The `output/` directory should contain the allocation files generated by the student's allocator.
+
+---
+
+#### 3. Run the Corrector
+
+```bash
+./correct_all.sh
+```
+
+This validates every allocation file and prints a pass/fail summary for each dataset.
+
+Example:
+
+```text
+--------------------------------------------
+  Dataset 6
+--------------------------------------------
+  OK: webs are correct
+  OK: register assignment is correct
+```
+
+---
+
+### Expected Directory Layout
+
+```text
+project/
+├── build/
+├── output/
+├── ranges/
+├── registers/
+├── run_all.sh
+├── correct_all.sh
+├── myProg
+├── myCorrection
+└── CMakeLists.txt
+```
